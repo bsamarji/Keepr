@@ -1,4 +1,5 @@
-import sqlite3
+#import sqlite3
+import sqlcipher3.dbapi2 as sqlite3
 from pathlib import Path
 import click
 import sys
@@ -150,13 +151,10 @@ def validate_service_name(service_name):
                 (service_name,),
             )
             row = cur.fetchmany(1)
-            if len(row) == 0:
-                click.echo(
-                    f"No entry is stored with service name: {service_name}. Please check the spelling and try again."
-                )
-                sys.exit(0)
-            else:
+            if len(row) > 0:
                 return True
+            else:
+                return False
     except sqlite3.Error as e:
         raise Exception(
             f"Could not validate the entry for {service_name}. Details: {e}"
