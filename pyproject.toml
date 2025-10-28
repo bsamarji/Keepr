@@ -1,7 +1,7 @@
 [project]
 name = "PassMaster"
 version = "0.1.0"
-description = "Secure password manager cli"
+description = "Secure password manager cli app"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -10,3 +10,6 @@ dependencies = [
     "pyperclip==1.11.0",
     "sqlcipher3-wheels==0.5.5.post0",
 ]
+
+[project.scripts]
+passman = "passman.cli:cli"

@@ -3,7 +3,7 @@ import sqlcipher3.dbapi2 as sqlite3
 from pathlib import Path
 import click
 import sys
-from config import *
+from .config import *
 
 
 def get_db_path():
