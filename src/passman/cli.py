@@ -3,6 +3,8 @@ import db
 import tabulate
 import sys
 import pyperclip
+from config import COLOR_SENSITIVE_DATA, COLOR_PRIMARY_DATA, COLOR_WARNING, COLOR_ERROR, COLOR_HEADER, COLOR_PROMPT_BOLD, COLOR_PROMPT_LIGHT, COLOR_SUCCESS
+
 
 @click.group(
     context_settings=dict(help_option_names=["-h", "--help"]),
@@ -17,7 +19,8 @@ def cli():
     try:
         db.initialise_db()
     except Exception as e:
-        click.echo(f"DB ERROR: {e}. Exiting program.", err=True)
+        # Critical Error: Red and bold
+        click.secho(f"DB ERROR: {e}. Exiting program.", err=True, **COLOR_ERROR)
         raise click.Abort()
 
 
@@ -49,35 +52,53 @@ def add(service_name, generate):
     Prompts user to confirm the new entry and save it into database.
     """
     if db.validate_service_name(service_name) is True:
-        click.echo(f"An entry for '{service_name}' already exists. Please use a different name.")
+        # Warning: Yellow
+        click.secho(f"An entry for '{service_name}' already exists. Please use a different name.", **COLOR_WARNING)
         sys.exit(0)
 
-    username = click.prompt("Enter username/email", type=str)
+    # Prompts: Cyan and bold for visibility
+    username = click.prompt(click.style("Enter username/email", **COLOR_PROMPT_BOLD), type=str)
 
     if generate:
         password = "generatedTestPassword123"
-        click.echo(f"Generated password for '{service_name}': {password}")
+        # Generated Password/Success: Green and bold
+        click.secho(f"Generated password for '{service_name}': {password}", **COLOR_SUCCESS)
     else:
         password = click.prompt(
-            "Enter password", hide_input=True, confirmation_prompt=True
+            click.style("Enter password", **COLOR_PROMPT_BOLD),
+            hide_input=True,
+            confirmation_prompt=True
         )
 
     url = click.prompt(
-        "Enter url (optional)", type=str, default="null", show_default=False
-    )
-    note = click.prompt(
-        "Enter note (optional)", type=str, default="null", show_default=False
+        click.style("Enter url (optional)", **COLOR_PROMPT_LIGHT),  # Optional fields use lighter prompt style
+        type=str,
+        default="null",
+        show_default=False
     )
 
-    if click.confirm(f"Ready to securely save the entry for '{service_name}'?"):
+    note = click.prompt(
+        click.style("Enter note (optional)", **COLOR_PROMPT_LIGHT),  # Optional fields use lighter prompt style
+        type=str,
+        default="null",
+        show_default=False
+    )
+
+    # Confirmation: Cyan
+    if click.confirm(click.style(f"Ready to securely save the entry for '{service_name}'?", **COLOR_PROMPT_LIGHT)):
         try:
+            # Placeholder IV of 1, should be changed when encryption is implemented
             db.add_entry(service_name, username, password, url, note, 1)
-            click.echo(f"Entry for '{service_name}' saved successfully.")
+            # Success Message: Green and bold
+            click.secho(f"Entry for '{service_name}' saved successfully.", **COLOR_SUCCESS)
         except Exception as e:
-            print(f"DB ERROR: {e}")
+            # DB Error: Red
+            click.secho(f"DB ERROR: {e}", **COLOR_ERROR)
             click.Abort()
     else:
-        click.echo("Operation cancelled.")
+        # Operation Cancelled: Yellow
+        click.secho("Operation cancelled.", **COLOR_WARNING)
+        click.Abort()
 
 
 @cli.command(
@@ -98,26 +119,56 @@ def view(service_name):
     Display the entry in a beautiful table.
     """
     try:
-        click.echo(f"Retrieving credentials for: {service_name}")
+        # Information header: Magenta
+        click.secho(f"Retrieving credentials for: {service_name}",
+                    fg="magenta")  # Using fg="magenta" without bold for the main message
         row = db.view_entry(service_name)
+
+        # Style the headers and data within the table
+        headers = [
+            click.style("SERVICE", **COLOR_HEADER),
+            click.style("USERNAME", **COLOR_HEADER),
+            click.style("PASSWORD", **COLOR_HEADER),
+            click.style("URL", **COLOR_HEADER),
+            click.style("NOTE", **COLOR_HEADER),
+            click.style("CREATED AT", **COLOR_HEADER),
+            click.style("UPDATED AT", **COLOR_HEADER),
+        ]
+
+        # Row data styling
+        styled_row = []
+        for r in row:
+            styled_row.append([
+                click.style(r[0], **COLOR_SENSITIVE_DATA),
+                click.style(r[1], **COLOR_SENSITIVE_DATA),  # username
+                click.style(r[2], **COLOR_SENSITIVE_DATA),  # password (highlight sensitive data)
+                click.style(r[3], **COLOR_WARNING),  # url (Warning/Annotation Data)
+                click.style(r[4], **COLOR_WARNING),  # note (Warning/Annotation Data)
+                click.style(r[5], **COLOR_PRIMARY_DATA),  # created_at
+                click.style(r[6], **COLOR_PRIMARY_DATA)  # updated_at
+            ])
+
         display_table = tabulate.tabulate(
-            row,
-            headers=[
-                "service_name",
-                "username",
-                "password",
-                "url",
-                "note",
-                "created_at",
-                "updated_at",
-            ],
+            styled_row,
+            headers=headers,
             tablefmt="rounded_grid",
         )
-        click.echo(display_table)
-        pyperclip.copy(row[0][2]) # copy password to clipboard
-        click.secho(f"The password for '{service_name}' has been copied to your clipboard!", fg="yellow", bold=True)
+        click.secho(display_table)
+
+        pyperclip.copy(row[0][2])  # copy password to clipboard
+        # Success and critical security message: Green and Red/Bold
+        click.secho(f"The password for '{service_name}' has been copied to your clipboard!", **COLOR_SUCCESS)
+        click.secho("\nSECURITY NOTE: Clear your screen immediately!", **COLOR_ERROR)
+
+    except pyperclip.PyperclipException as e:
+        # Warning/Error: Red and Yellow
+        click.secho(f"ERROR: {e}", **COLOR_ERROR)
+        click.secho("Please install ONE of the following copy/paste mechanisms (e.g. 'pip install xsel'):",
+                    **COLOR_WARNING)
+        click.secho("xsel, xclip, gtk, PyQt4", **COLOR_WARNING)
+        click.Abort()
     except Exception as e:
-        click.echo(f"DB ERROR: {e}")
+        click.secho(f"DB ERROR: {e}", **COLOR_ERROR)
         click.Abort()
 
 
@@ -142,24 +193,40 @@ def search(search_term):
     User must use the 'view' command to retrieve sensitive information.
     """
     try:
-        click.echo(
-            f"Retrieving entries with service names that contain the search term: {search_term}"
+        # Information header: Magenta
+        click.secho(
+            f"Retrieving entries with service names that contain the search term: {search_term}",
+            fg="magenta"
         )
         rows = db.search(search_term)
+
+        # Style the headers and data rows
+        headers = [
+            click.style("SERVICE NAME", **COLOR_HEADER),
+            click.style("URL", **COLOR_HEADER),
+            click.style("NOTE", **COLOR_HEADER),
+            click.style("CREATED AT", **COLOR_HEADER),
+            click.style("UPDATED AT", **COLOR_HEADER),
+        ]
+
+        styled_rows = []
+        for r in rows:
+            styled_rows.append([
+                click.style(r[0], **COLOR_SENSITIVE_DATA),  # service_name (Primary Data)
+                click.style(r[1], **COLOR_WARNING),  # url (Secondary Data)
+                click.style(r[2], **COLOR_WARNING),  # note (Warning/Annotation Data)
+                click.style(r[3], **COLOR_PRIMARY_DATA),  # created_at
+                click.style(r[4], **COLOR_PRIMARY_DATA)  # updated_at
+            ])
+
         display_table = tabulate.tabulate(
-            rows,
-            headers=[
-                "service_name",
-                "url",
-                "note",
-                "created_at",
-                "updated_at",
-            ],
+            styled_rows,
+            headers=headers,
             tablefmt="rounded_grid",
         )
-        click.echo(display_table)
+        click.secho(display_table)
     except Exception as e:
-        click.echo(f"DB ERROR: {e}")
+        click.secho(f"DB ERROR: {e}", **COLOR_ERROR)
         click.Abort()
 
 
@@ -183,22 +250,37 @@ def list_entries():
     User must use the 'view' command to retrieve sensitive information.
     """
     try:
-        click.echo(f"Retrieving all entries.")
+        # Information header: Magenta
+        click.secho(f"Retrieving all entries.", fg="magenta")
         rows = db.list()
+
+        # Style the headers and data rows
+        headers = [
+            click.style("SERVICE NAME", **COLOR_HEADER),
+            click.style("URL", **COLOR_HEADER),
+            click.style("NOTE", **COLOR_HEADER),
+            click.style("CREATED AT", **COLOR_HEADER),
+            click.style("UPDATED AT", **COLOR_HEADER),
+        ]
+
+        styled_rows = []
+        for r in rows:
+            styled_rows.append([
+                click.style(r[0], **COLOR_SENSITIVE_DATA),  # service_name (Primary Data)
+                click.style(r[1], **COLOR_WARNING),  # url (Secondary Data)
+                click.style(r[2], **COLOR_WARNING),  # note (Warning/Annotation Data)
+                click.style(r[3], **COLOR_PRIMARY_DATA),  # created_at
+                click.style(r[4], **COLOR_PRIMARY_DATA)  # updated_at
+            ])
+
         display_table = tabulate.tabulate(
-            rows,
-            headers=[
-                "service_name",
-                "url",
-                "note",
-                "created_at",
-                "updated_at",
-            ],
+            styled_rows,
+            headers=headers,
             tablefmt="rounded_grid",
         )
-        click.echo(display_table)
+        click.secho(display_table)
     except Exception as e:
-        click.echo(f"DB ERROR: {e}")
+        click.secho(f"DB ERROR: {e}", **COLOR_ERROR)
         click.Abort()
 
 
@@ -228,26 +310,38 @@ def update(service_name, generate):
     Update the password for an entry in the database.
     Prompts user to confirm password update.
     """
-    db.validate_service_name(service_name)
+    # Validation is now handled inside db.validate_service_name, but a check here is fine.
+    if db.validate_service_name(service_name) is False:
+        click.secho(f"An entry for '{service_name}' doesn't exist. Please check the service name and try again.",
+                    **COLOR_WARNING)
+        sys.exit(0)
+
     if generate:
         password = "updatedPassword123"
-        click.echo(f"Generated new password for '{service_name}': {password}")
+        # Generated Password/Success: Green and bold
+        click.secho(f"Generated new password for '{service_name}': {password}", **COLOR_SUCCESS)
     else:
+        # Prompt: Cyan and bold
         password = click.prompt(
-            f"Enter new password for {service_name}",
+            click.style(f"Enter new password for {service_name}", **COLOR_PROMPT_BOLD),
             hide_input=True,
             confirmation_prompt=True,
         )
 
-    if click.confirm(f"Ready to securely save the new password for '{service_name}'?"):
+    # Confirmation: Cyan
+    if click.confirm(
+            click.style(f"Ready to securely save the new password for '{service_name}'?", **COLOR_PROMPT_LIGHT)):
         try:
             db.update_entry(service_name, password)
-            click.echo(f"Password for '{service_name}' saved successfully.")
+            # Success Message: Green and bold
+            click.secho(f"Password for '{service_name}' saved successfully.", **COLOR_SUCCESS)
         except Exception as e:
-            print(f"DB ERROR: {e}")
+            # DB Error: Red
+            click.secho(f"DB ERROR: {e}", **COLOR_ERROR)
             click.Abort()
     else:
-        click.echo("Operation cancelled.")
+        # Operation Cancelled: Yellow
+        click.secho("Operation cancelled.", **COLOR_WARNING)
 
 
 @cli.command(
@@ -266,19 +360,25 @@ def delete(service_name):
     Delete an entry in the database.
     Prompts user to confirm deletion.
     """
-    db.validate_service_name(service_name)
-    if click.confirm(f"Ready to securely delete the entry for: {service_name}?"):
+    if db.validate_service_name(service_name) is False:
+        click.secho(f"An entry for '{service_name}' doesn't exist. Please check the service name and try again.",
+                    **COLOR_WARNING)
+        sys.exit(0)
+
+    # Confirmation: Critical (Red) for an irreversible action
+    if click.confirm(click.style(f"Ready to PERMANENTLY delete the entry for: {service_name}? (This cannot be undone)",
+                                 **COLOR_ERROR)):
         try:
-            if db.validate_service_name(service_name) is False:
-                click.echo(f"An entry for '{service_name}' doesn't exist. Please check the service name and try again.")
-                sys.exit(0)
             db.delete_entry(service_name)
-            click.echo(f"{service_name} successfully deleted.")
+            # Success Message: Green and bold
+            click.secho(f"{service_name} successfully deleted.", **COLOR_SUCCESS)
         except Exception as e:
-            print(f"DB ERROR: {e}")
+            # DB Error: Red
+            click.secho(f"DB ERROR: {e}", **COLOR_ERROR)
             click.Abort()
     else:
-        click.echo("Operation cancelled.")
+        # Operation Cancelled: Yellow
+        click.secho("Operation cancelled.", **COLOR_WARNING)
 
 
 cli()

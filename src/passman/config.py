@@ -1,6 +1,19 @@
+# --- COLOR SCHEME DEFINITIONS ---
+# Define colors and styles based on the type of information
+COLOR_ERROR = dict(fg="red", bold=True)  # Critical failure, security warnings, irreversible actions
+COLOR_SUCCESS = dict(fg="green", bold=True)  # Successful operation, generated passwords
+COLOR_PROMPT_BOLD = dict(fg="cyan", bold=True)  # Primary prompts (username, password)
+COLOR_PROMPT_LIGHT = dict(fg="cyan")  # Secondary/optional prompts (URL, note)
+COLOR_WARNING = dict(fg="yellow")  # Non-fatal warnings, operation cancelled, secondary notes
+COLOR_HEADER = dict(fg="magenta", bold=True)  # Table headers, main information headers
+COLOR_PRIMARY_DATA = dict(fg="white")  # Non-sensitive primary data (timestamps, username)
+COLOR_SENSITIVE_DATA = dict(fg="green")  # Highly sensitive data (passwords in view)
+
+# --- DB FILE PATHS ---
 DB_FILE_NAME = "passman.db"
 DB_DIR_NAME = ".passman"
 
+# --- DB QUERIES ---
 SQL_CREATE_TABLE = """
 CREATE TABLE IF NOT EXISTS entries (
     id INTEGER PRIMARY KEY,

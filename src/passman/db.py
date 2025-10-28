@@ -33,7 +33,7 @@ def initialise_db():
         with get_db_connection() as conn:
             conn.execute(SQL_CREATE_TABLE)
     except sqlite3.Error as e:
-        click.echo(f"Could not initialise the database. Details: {e}", err=True)
+        click.secho(f"Could not initialise the database. Details: {e}", err=True, fg="red")
 
 
 def add_entry(service_name, username, password, url, note, iv):
@@ -60,7 +60,7 @@ def view_entry(service_name):
             cur.execute(SQL_VIEW_ENTRY, (service_name,))
             row = cur.fetchmany(1)
             if len(row) == 0:
-                click.echo(f"No entry was found with the service name: {service_name}")
+                click.secho(f"No entry was found with the service name: {service_name}", fg="yellow")
                 sys.exit(0)
             return row
     except sqlite3.Error as e:
@@ -80,8 +80,9 @@ def search(search_term):
             cur.execute(SQL_SEARCH, (search_pattern,))
             rows = cur.fetchall()
             if len(rows) == 0:
-                click.echo(
-                    f"No entries were found with service names that contain the search term: {search_term}"
+                click.secho(
+                    f"No entries were found with service names that contain the search term: {search_term}",
+                    fg="yellow",
                 )
                 sys.exit(0)
             return rows
@@ -102,8 +103,9 @@ def list():
             cur.execute(SQL_LIST)
             rows = cur.fetchall()
             if len(rows) == 0:
-                click.echo(
-                    f"No entries are currently stored. Please add at least one entry"
+                click.secho(
+                    f"No entries are currently stored. Please add at least one entry",
+                    fg="yellow",
                 )
                 sys.exit(0)
             return rows
