@@ -1,6 +1,5 @@
 import base64
 import os
-import sys
 from pathlib import Path
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
@@ -69,12 +68,25 @@ def login():
     Returns:
          The master password
     """
-    master_password = click.prompt(
-        click.style("Please enter your master password", **COLOR_PROMPT_BOLD),
-        hide_input=True,
-        confirmation_prompt=True,
-    )
-    return master_password
+    home_dir = Path.home()
+    security_dir = home_dir / DB_DIR_NAME / SECURITY_DIR_NAME
+    pek_file = security_dir / PEK_FILE_NAME
+
+    if not pek_file.exists():
+        click.secho("Welcome to PassMan!", **COLOR_WARNING)
+        master_password = click.prompt(
+            click.style("Please create your master password", **COLOR_PROMPT_BOLD),
+            hide_input=True,
+            confirmation_prompt=True,
+        )
+        return master_password
+    else:
+        master_password = click.prompt(
+            click.style("Please enter your master password", **COLOR_PROMPT_BOLD),
+            hide_input=True,
+            confirmation_prompt=True,
+        )
+        return master_password
 
 def generate_derived_key(kdf, master_password):
     """
