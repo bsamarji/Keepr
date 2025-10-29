@@ -1,5 +1,5 @@
 import click
-from . import db
+from . import db, security
 import tabulate
 import sys
 import pyperclip
@@ -12,16 +12,17 @@ from .config import COLOR_SENSITIVE_DATA, COLOR_PRIMARY_DATA, COLOR_WARNING, COL
 )
 def cli():
     """
-    PassMaster - A secure CLI password manager.
+    PassMan - A secure CLI password manager.
 
     Manages passwords and sensitive data locally using an encrypted SQLite vault.
     """
-    try:
-        db.initialise_db()
-    except Exception as e:
-        # Critical Error: Red and bold
-        click.secho(f"DB ERROR: {e}. Exiting program.", err=True, **COLOR_ERROR)
-        raise click.Abort()
+    # --- INITIALISE DATABASE ---
+    db.initialise_db()
+
+    # --- INITIALISE SECURITY ---
+    security.initialise_security_dir()
+    security.generate_salt_file()
+
 
 
 @cli.command(
@@ -252,7 +253,7 @@ def list_entries():
     try:
         # Information header: Magenta
         click.secho(f"Retrieving all entries.", fg="magenta")
-        rows = db.list()
+        rows = db.list_entries()
 
         # Style the headers and data rows
         headers = [

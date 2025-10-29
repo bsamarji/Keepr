@@ -1,13 +1,14 @@
 import base64
 import os
 from pathlib import Path
-from cryptography.fernet import Fernet
+from cryptography.fernet import Fernet, InvalidToken
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from .config import DB_DIR_NAME, SECURITY_DIR_NAME, SALT_FILE_NAME, PEK_FILE_NAME
-from .config import (COLOR_SENSITIVE_DATA, COLOR_PRIMARY_DATA, COLOR_WARNING, COLOR_ERROR,
-                     COLOR_HEADER, COLOR_PROMPT_BOLD, COLOR_PROMPT_LIGHT, COLOR_SUCCESS)
+from .config import COLOR_WARNING, COLOR_ERROR, COLOR_PROMPT_BOLD
 import click
+import sys
+
 
 def initialise_security_dir():
     """
@@ -15,7 +16,11 @@ def initialise_security_dir():
     """
     home_dir = Path.home()
     security_dir = home_dir / DB_DIR_NAME / SECURITY_DIR_NAME
-    Path.mkdir(security_dir, parents=True, exist_ok=True)
+    try:
+        Path.mkdir(security_dir, parents=True, exist_ok=True)
+    except OSError as e:
+        click.secho(f"Error creating security directory at {security_dir}: {e}", **COLOR_ERROR)
+        sys.exit(1)
 
 def generate_salt_file():
     """
@@ -26,22 +31,38 @@ def generate_salt_file():
     salt_file = security_dir / SALT_FILE_NAME
     if not salt_file.exists():
         salt = os.urandom(16)
-        with open(salt_file, "wb") as f:
-            f.write(salt)
+        try:
+            with open(salt_file, "wb") as f:
+                f.write(salt)
+        except IOError as e:
+            click.secho(f"Error writing salt file to {salt_file}: {e}", **COLOR_ERROR)
+            sys.exit(1)
+
 
 def retrieve_salt():
     """
     Retrieve the salt from the salt file.
 
     Returns:
-         The salt.
+         The salt (bytes) or None on failure.
     """
     home_dir = Path.home()
     security_dir = home_dir / DB_DIR_NAME / SECURITY_DIR_NAME
     salt_file = security_dir / SALT_FILE_NAME
-    with open(salt_file, "rb") as f:
-        salt = f.read()
-    return salt
+    try:
+        with open(salt_file, "rb") as f:
+            salt = f.read()
+        if not salt:
+            click.secho(f"Salt file is empty: {salt_file}", **COLOR_ERROR)
+            sys.exit(1)
+        return salt
+    except FileNotFoundError:
+        click.secho(f"Salt file not found at {salt_file}. Run setup first.", **COLOR_ERROR)
+        sys.exit(1)
+    except IOError as e:
+        click.secho(f"Error reading salt file: {e}", **COLOR_ERROR)
+        sys.exit(1)
+
 
 def key_derivation_function(salt):
     """
@@ -61,24 +82,29 @@ def key_derivation_function(salt):
     )
     return kdf
 
+
 def login():
     """
     Login to the password manager.
 
     Returns:
-         The master password
+         The master password (str).
     """
     home_dir = Path.home()
     security_dir = home_dir / DB_DIR_NAME / SECURITY_DIR_NAME
     pek_file = security_dir / PEK_FILE_NAME
 
     if not pek_file.exists():
-        click.secho("Welcome to PassMan!", **COLOR_WARNING)
+        click.secho("Welcome to PassMan! Initial setup required.", **COLOR_WARNING)
         master_password = click.prompt(
             click.style("Please create your master password", **COLOR_PROMPT_BOLD),
             hide_input=True,
             confirmation_prompt=True,
         )
+        # Check for empty password
+        if not master_password:
+            click.secho("Master password cannot be empty.", **COLOR_ERROR)
+            sys.exit(1)
         return master_password
     else:
         master_password = click.prompt(
@@ -87,6 +113,7 @@ def login():
             confirmation_prompt=True,
         )
         return master_password
+
 
 def generate_derived_key(kdf, master_password):
     """
@@ -97,8 +124,10 @@ def generate_derived_key(kdf, master_password):
         master_password: The master password to use
 
     Returns:
-        The derived key
+        The derived key (bytes)
     """
+    # Note: master_password should already be a string from click.prompt
+    # and kdf.derive expects bytes, so .encode() is necessary.
     key = base64.urlsafe_b64encode(kdf.derive(master_password.encode()))
     return key
 
@@ -106,25 +135,42 @@ def generate_derived_key(kdf, master_password):
 def generate_and_encrypt_pek(derived_key):
     """
     Generates a 32-byte Primary Encryption Key (PEK) and locks it
-    by encrypting it with the derived_key (KEK) using Fernet.
+    by encrypting it with the derived key (Key Encryption Key - KEK) using Fernet.
     Stores the encrypted PEK to disk.
 
     Args:
         derived_key (bytes): The 44-byte base64url-encoded key from the KDF.
 
     Returns:
-        The decrypted PEK (bytes)
+        The decrypted PEK (bytes) or None on failure.
     """
     home_dir = Path.home()
     security_dir = home_dir / DB_DIR_NAME / SECURITY_DIR_NAME
     pek_file = security_dir / PEK_FILE_NAME
 
-    f = Fernet(derived_key)
+    try:
+        f = Fernet(derived_key)
+    except ValueError as e:
+        click.secho(f"Internal error: Invalid Fernet key generated: {e}", **COLOR_ERROR)
+        return None  # Should not happen with current KDF setup
 
     pek = os.urandom(32)
-    encrypted_pek = f.encrypt(pek)
-    with open(pek_file, "wb") as file:
-        file.write(encrypted_pek)
+
+    # 1. Encrypt the PEK
+    try:
+        encrypted_pek = f.encrypt(pek)
+    except Exception as e:
+        click.secho(f"Internal error: Failed to encrypt PEK: {e}", **COLOR_ERROR)
+        return None
+
+    # 2. Store the Encrypted PEK
+    try:
+        with open(pek_file, "wb") as file:
+            file.write(encrypted_pek)
+    except IOError as e:
+        click.secho(f"Critical error: Failed to write PEK file: {e}", **COLOR_ERROR)
+        return None
+
     return pek
 
 
@@ -133,22 +179,41 @@ def retrieve_and_decrypt_pek(derived_key):
     Retrieve the PEK and decrypt it using Fernet.
 
     Args:
-        The derived key (KEK) to use
+        derived_key (bytes): The derived key (KEK) to use
 
     Returns:
-        The decrypted primary encryption key (PEK)
+        The decrypted primary encryption key (PEK) (bytes) or None on failure.
     """
     home_dir = Path.home()
     security_dir = home_dir / DB_DIR_NAME / SECURITY_DIR_NAME
     pek_file = security_dir / PEK_FILE_NAME
 
-    with open(pek_file, "rb") as file:
-        encrypted_pek = file.read()
+    # 1. Retrieve the Encrypted PEK
+    try:
+        with open(pek_file, "rb") as file:
+            encrypted_pek = file.read()
+    except FileNotFoundError:
+        click.secho(f"PEK file not found at {pek_file}. Run setup first.", **COLOR_ERROR)
+        return None
+    except IOError as e:
+        click.secho(f"Error reading PEK file: {e}", **COLOR_ERROR)
+        return None
 
-    f = Fernet(derived_key)
+    # 2. Initialize Fernet
+    try:
+        f = Fernet(derived_key)
+    except ValueError as e:
+        click.secho(f"Internal error: Invalid Fernet key generated: {e}", **COLOR_ERROR)
+        return None
 
+    # 3. Decrypt the PEK
     try:
         pek = f.decrypt(encrypted_pek)
         return pek
-    except Exception:
+    except InvalidToken:
+        # This is the primary point of failure for an incorrect master password
         click.secho("The master password is incorrect. Please try again.", **COLOR_ERROR)
+        return None
+    except Exception as e:
+        click.secho(f"Unknown decryption error: {e}", **COLOR_ERROR)
+        return None

@@ -11,8 +11,16 @@ def get_db_path():
     """
     home_dir = Path.home()
     db_dir = home_dir / DB_DIR_NAME
-    Path.mkdir(db_dir, parents=True, exist_ok=True)
-    return db_dir / DB_FILE_NAME
+    try:
+        Path.mkdir(db_dir, parents=True, exist_ok=True)
+        return db_dir / DB_FILE_NAME
+    except OSError as e:
+        click.secho(
+            f"Critical Error: Failed to create database directory at {db_dir}. Details: {e}",
+            err=True,
+            **COLOR_ERROR,
+        )
+        sys.exit(1)
 
 
 def get_db_connection():
@@ -20,8 +28,16 @@ def get_db_connection():
     Creates and returns a connection to the database.
     """
     db_path = get_db_path()
-    conn = sqlite3.connect(db_path)
-    return conn
+    try:
+        conn = sqlite3.connect(db_path)
+        return conn
+    except sqlite3.Error as e:
+        click.secho(
+            f"Critical Error: Could not connect to the database at {db_path}. Details: {e}",
+            err=True,
+            **COLOR_ERROR,
+        )
+        sys.exit(1)
 
 
 def initialise_db():
@@ -32,7 +48,8 @@ def initialise_db():
         with get_db_connection() as conn:
             conn.execute(SQL_CREATE_TABLE)
     except sqlite3.Error as e:
-        click.secho(f"Could not initialise the database. Details: {e}", err=True, fg="red")
+        click.secho(f"Could not initialise the database. Details: {e}", err=True, **COLOR_ERROR)
+        sys.exit(1)
 
 
 def add_entry(service_name, username, password, url, note):
@@ -91,7 +108,7 @@ def search(search_term):
         )
 
 
-def list():
+def list_entries():
     """
     Retrieve information from the db for all service names and return a list containing tuples.
     The output will be piped into the tabulate() func which requires a list of iterables.
