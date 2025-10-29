@@ -42,3 +42,11 @@ def key_derivation_function(salt):
         iterations=1_200_000,
     )
     return kdf
+
+def generate_encryption_key(kdf, master_password):
+    """
+    Create an encryption key using the given kdf and master password.
+    Returns the encryption key.
+    """
+    key = base64.urlsafe_b64encode(kdf.derive(master_password))
+    return key
