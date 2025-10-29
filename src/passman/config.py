@@ -1,5 +1,4 @@
 # --- COLOR SCHEME DEFINITIONS ---
-# Define colors and styles based on the type of information
 COLOR_ERROR = dict(fg="red", bold=True)  # Critical failure, security warnings, irreversible actions
 COLOR_SUCCESS = dict(fg="green", bold=True)  # Successful operation, generated passwords
 COLOR_PROMPT_BOLD = dict(fg="cyan", bold=True)  # Primary prompts (username, password)
@@ -14,7 +13,9 @@ DB_FILE_NAME = "passman.db"
 DB_DIR_NAME = ".passman"
 
 # --- SECURITY FILE NAMES ---
+SECURITY_DIR_NAME = ".security"
 SALT_FILE_NAME = "passman.salt"
+PEK_FILE_NAME = "passman.key"
 
 # --- DB QUERIES ---
 SQL_CREATE_TABLE = """
