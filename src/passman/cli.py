@@ -2,8 +2,11 @@ import click
 from . import db, security
 import tabulate
 import sys
+from pathlib import Path
 import pyperclip
-from .config import COLOR_SENSITIVE_DATA, COLOR_PRIMARY_DATA, COLOR_WARNING, COLOR_ERROR, COLOR_HEADER, COLOR_PROMPT_BOLD, COLOR_PROMPT_LIGHT, COLOR_SUCCESS
+from .config import (COLOR_SENSITIVE_DATA, COLOR_PRIMARY_DATA, COLOR_WARNING, COLOR_ERROR,
+                     COLOR_HEADER, COLOR_PROMPT_BOLD, COLOR_PROMPT_LIGHT, COLOR_SUCCESS)
+from .config import DB_DIR_NAME, SECURITY_DIR_NAME, PEK_FILE_NAME
 
 
 @click.group(
@@ -22,7 +25,19 @@ def cli():
     # --- INITIALISE SECURITY ---
     security.initialise_security_dir()
     security.generate_salt_file()
+    salt = security.retrieve_salt()
+    kdf = security.key_derivation_function(salt=salt)
+    master_password = security.login()
+    kek = security.generate_derived_key(kdf=kdf, master_password=master_password)
 
+    home_dir = Path.home()
+    security_dir = home_dir / DB_DIR_NAME / SECURITY_DIR_NAME
+    pek_file = security_dir / PEK_FILE_NAME
+
+    if not pek_file.exists():
+        pek = security.generate_and_encrypt_pek(derived_key=kek)
+    else:
+        pek = security.retrieve_and_decrypt_pek(derived_key=kek)
 
 
 @cli.command(

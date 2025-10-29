@@ -152,7 +152,7 @@ def generate_and_encrypt_pek(derived_key):
         f = Fernet(derived_key)
     except ValueError as e:
         click.secho(f"Internal error: Invalid Fernet key generated: {e}", **COLOR_ERROR)
-        return None  # Should not happen with current KDF setup
+        sys.exit(1)
 
     pek = os.urandom(32)
 
@@ -161,7 +161,7 @@ def generate_and_encrypt_pek(derived_key):
         encrypted_pek = f.encrypt(pek)
     except Exception as e:
         click.secho(f"Internal error: Failed to encrypt PEK: {e}", **COLOR_ERROR)
-        return None
+        sys.exit(1)
 
     # 2. Store the Encrypted PEK
     try:
@@ -169,7 +169,7 @@ def generate_and_encrypt_pek(derived_key):
             file.write(encrypted_pek)
     except IOError as e:
         click.secho(f"Critical error: Failed to write PEK file: {e}", **COLOR_ERROR)
-        return None
+        sys.exit(1)
 
     return pek
 
@@ -211,9 +211,8 @@ def retrieve_and_decrypt_pek(derived_key):
         pek = f.decrypt(encrypted_pek)
         return pek
     except InvalidToken:
-        # This is the primary point of failure for an incorrect master password
         click.secho("The master password is incorrect. Please try again.", **COLOR_ERROR)
-        return None
+        sys.exit(1)
     except Exception as e:
         click.secho(f"Unknown decryption error: {e}", **COLOR_ERROR)
-        return None
+        sys.exit(1)
