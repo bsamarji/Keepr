@@ -10,7 +10,6 @@ from .config import DB_DIR_NAME, SECURITY_DIR_NAME, PEK_FILE_NAME
 from .config import COMMANDS_VALID_NO_ARGS
 from .password_generator import password_generator
 
-# TODO: Create password generator function
 # TODO: Create master password update function
 
 def authenticate_from_session(ctx):
@@ -37,6 +36,7 @@ def authenticate_from_session(ctx):
         #    (e.g., 'passman add' is suppressed, but 'passman list' is NOT suppressed)
         should_suppress = (
                 is_help_requested or
+                (subcommand_name in ['login', 'logout']) or
                 (is_only_subcommand and subcommand_name not in COMMANDS_VALID_NO_ARGS)
         )
 
