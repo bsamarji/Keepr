@@ -126,8 +126,6 @@ def generate_derived_key(kdf, master_password):
     Returns:
         The derived key (bytes)
     """
-    # Note: master_password should already be a string from click.prompt
-    # and kdf.derive expects bytes, so .encode() is necessary.
     key = base64.urlsafe_b64encode(kdf.derive(master_password.encode()))
     return key
 

@@ -1,13 +1,51 @@
 import click
-from . import db, security
 import tabulate
 import sys
 from pathlib import Path
 import pyperclip
+from . import db, security, session
 from .config import (COLOR_SENSITIVE_DATA, COLOR_PRIMARY_DATA, COLOR_WARNING, COLOR_ERROR,
                      COLOR_HEADER, COLOR_PROMPT_BOLD, COLOR_PROMPT_LIGHT, COLOR_SUCCESS)
 from .config import DB_DIR_NAME, SECURITY_DIR_NAME, PEK_FILE_NAME
+from .config import COMMANDS_VALID_NO_ARGS
 
+# TODO: Create password generator function
+# TODO: Create master password update function
+
+def authenticate_from_session(ctx):
+    """
+    Attempts to retrieve the PEK from the session file.
+    If successful, stores the PEK in ctx.obj and initializes the DB.
+    """
+    session_pek = session.retrieve_session_pek()
+
+    if session_pek:
+        # Vault is successfully unlocked via session file!
+        ctx.ensure_object(dict)
+        ctx.obj['pek'] = session_pek
+        db.initialise_db(pek=session_pek)
+
+        # --- SUPPRESS MESSAGE LOGIC ---
+        subcommand_name = ctx.invoked_subcommand
+        is_help_requested = any(h in sys.argv for h in ['-h', '--help'])
+        is_only_subcommand = (len(sys.argv) == 2 and subcommand_name is not None)
+
+        # Suppress the message if:
+        # 1. Help was explicitly requested (e.g., passman view -h)
+        # 2. The subcommand was run with no args AND that command is NOT in the valid no-arg list.
+        #    (e.g., 'passman add' is suppressed, but 'passman list' is NOT suppressed)
+        should_suppress = (
+                is_help_requested or
+                (is_only_subcommand and subcommand_name not in COMMANDS_VALID_NO_ARGS)
+        )
+
+        if not should_suppress:
+            # Only print if it's a valid command execution (like 'list') or a valid command with arguments
+            click.secho("Vault is unlocked via the active session.", **COLOR_SUCCESS)
+            click.secho("Run 'passman logout' when done.", **COLOR_WARNING)
+
+        return True
+    return False
 
 @click.group(
     context_settings=dict(help_option_names=["-h", "--help"]),
@@ -20,7 +58,25 @@ def cli(ctx):
 
     Manages passwords and sensitive data locally using an encrypted SQLite vault.
     """
-    # --- INITIALISE SECURITY ---
+    # Try to unlock the vault from the session file
+    if not authenticate_from_session(ctx=ctx):
+        # Set a flag indicating the vault is locked
+        ctx.ensure_object(dict)
+        ctx.obj['pek'] = None
+
+        if ctx.invoked_subcommand not in ['login', 'logout', None]:
+            # Check if help was explicitly requested. If so, suppress the lock warning.
+            is_help_requested = any(h in sys.argv for h in ['-h', '--help'])
+            if not is_help_requested:
+                click.secho("Vault is LOCKED. Run 'passman login' to unlock it.", **COLOR_ERROR)
+
+
+@cli.command(help="Unlocks the vault for subsequent commands in the terminal until timeout or explicit logout.")
+def login():
+    """
+    Prompts for the master password, decrypts the PEK, and stores it in a session file.
+    """
+    # --- SECURITY/KEY RETRIEVAL LOGIC ---
     db.get_db_path()
     security.initialise_security_dir()
     security.generate_salt_file()
@@ -34,16 +90,31 @@ def cli(ctx):
     pek_file = security_dir / PEK_FILE_NAME
 
     if not pek_file.exists():
+        # First time setup
         session_pek = security.generate_and_encrypt_pek(derived_key=kek)
     else:
+        # Subsequent login
         session_pek = security.retrieve_and_decrypt_pek(derived_key=kek)
 
-    # --- INITIALISE DATABASE ---
-    db.initialise_db(pek=session_pek)
+    if session_pek is None:
+        sys.exit(1)
 
-    # --- SET CONTEXT OBJECT TO SHARE PEK TO SUBCOMMANDS ---
-    ctx.ensure_object(dict)
-    ctx.obj['pek'] = session_pek
+    # --- SESSION STORAGE ---
+    if session.store_session_data(pek=session_pek):
+        db.initialise_db(pek=session_pek)  # Ensure DB is initialized with the PEK
+        click.secho(f"\nVault UNLOCKED. Commands will now run without further authentication.", **COLOR_SUCCESS)
+        click.secho("Remember to run 'passman logout' when finished.", **COLOR_WARNING)
+
+
+@cli.command(help="Locks the vault by deleting the active session file.")
+def logout():
+    """
+    Deletes the session file, requiring re-authentication for the next command.
+    """
+    if session.clear_session_data():
+        click.secho("\nVault LOCKED.", **COLOR_SUCCESS)
+    else:
+        click.secho("\nVault was already locked.", **COLOR_WARNING)
 
 @cli.command(
     help="Creates a new password entry. Prompts user for username/email, password, URL, and note.",
@@ -74,6 +145,9 @@ def add(ctx, service_name, generate):
     Prompts user to confirm the new entry and save it into database.
     """
     session_pek = ctx.obj["pek"]
+
+    if not session_pek:
+        sys.exit(1)
 
     if db.validate_service_name(pek=session_pek, service_name=service_name) is True:
         click.secho(f"An entry for '{service_name}' already exists. Please use a different name.", **COLOR_WARNING)
@@ -137,6 +211,9 @@ def view(ctx, service_name):
     Display the entry in a beautiful table.
     """
     session_pek = ctx.obj["pek"]
+    if not session_pek:
+        sys.exit(1)
+
     try:
         click.secho(f"Retrieving credentials for: {service_name}", **COLOR_HEADER)
         row = db.view_entry(pek=session_pek, service_name=service_name)
@@ -207,6 +284,9 @@ def search(ctx, search_term):
     User must use the 'view' command to retrieve sensitive information.
     """
     session_pek = ctx.obj["pek"]
+    if not session_pek:
+        sys.exit(1)
+
     try:
         click.secho(
             f"Retrieving entries with service names that contain the search term: {search_term}",
@@ -264,6 +344,9 @@ def list_entries(ctx):
     User must use the 'view' command to retrieve sensitive information.
     """
     session_pek = ctx.obj["pek"]
+    if not session_pek:
+        sys.exit(1)
+
     try:
         click.secho(f"Retrieving all entries.", **COLOR_HEADER)
         rows = db.list_entries(pek=session_pek)
@@ -325,6 +408,8 @@ def update(ctx, service_name, generate):
     Prompts user to confirm password update.
     """
     session_pek = ctx.obj["pek"]
+    if not session_pek:
+        sys.exit(1)
 
     if db.validate_service_name(pek=session_pek, service_name=service_name) is False:
         click.secho(f"An entry for '{service_name}' doesn't exist. Please check the service name and try again.",
@@ -372,6 +457,9 @@ def delete(ctx, service_name):
     Prompts user to confirm deletion.
     """
     session_pek = ctx.obj["pek"]
+    if not session_pek:
+        sys.exit(1)
+
     if db.validate_service_name(pek=session_pek, service_name=service_name) is False:
         click.secho(f"An entry for '{service_name}' doesn't exist. Please check the service name and try again.",
                     **COLOR_WARNING)

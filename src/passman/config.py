@@ -17,6 +17,13 @@ SECURITY_DIR_NAME = ".security"
 SALT_FILE_NAME = "passman.salt"
 PEK_FILE_NAME = "passman.key"
 
+# --- SESSION CONFIG ---
+SESSION_FILE_NAME = "passman.session"
+SESSION_TIMEOUT_SECONDS = 3600
+
+# --- COMMAND CONFIG ---
+COMMANDS_VALID_NO_ARGS = ['list', 'login', 'logout', 'help']
+
 # --- DB QUERIES ---
 SQL_CREATE_TABLE = """
 CREATE TABLE IF NOT EXISTS entries (
