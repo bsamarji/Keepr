@@ -108,7 +108,7 @@ def login():
         return master_password
     else:
         master_password = click.prompt(
-            click.style("Please enter your master password", **COLOR_PROMPT_BOLD),
+            click.style("Please enter your current master password", **COLOR_PROMPT_BOLD),
             hide_input=True,
             confirmation_prompt=True,
         )
@@ -135,7 +135,7 @@ def prompt_new_master_password():
         click.secho("Successfully updated master password!", **COLOR_SUCCESS)
     else:
         click.secho("Operation cancelled.", **COLOR_WARNING)
-        click.Abort()
+        sys.exit(1)
     return master_password
 
 
