@@ -56,7 +56,7 @@ def authenticate_from_session(ctx):
 @click.pass_context
 def cli(ctx):
     """
-    PassMan - A secure CLI password manager.
+    PassMan - A secure CLI password manager app.
 
     Manages passwords and sensitive data locally using an encrypted SQLite vault.
     """
@@ -73,7 +73,9 @@ def cli(ctx):
                 click.secho("Vault is LOCKED. Run 'passman login' to unlock it.", **COLOR_ERROR)
 
 
-@cli.command(help="Unlocks the vault for subsequent commands in the terminal until timeout or explicit logout.")
+@cli.command(help="Unlocks the vault for subsequent commands in the terminal to be run without authentication"
+                  " until session timeout or explicit logout. "
+                  "Each session lasts 1 hour.")
 def login():
     """
     Prompts for the master password, decrypts the PEK, and stores it in a session file.
@@ -107,7 +109,7 @@ def login():
         db.initialise_db(pek=session_pek)  # Ensure DB is initialized with the PEK
         click.secho(f"\nVault UNLOCKED. Commands will now run without further authentication.", **COLOR_SUCCESS)
         click.secho("Remember to run 'passman logout' when finished.", **COLOR_WARNING)
-
+        click.secho("The session will terminate in 1 hour.", **COLOR_WARNING)
 
 @cli.command(help="Locks the vault by deleting the active session file.")
 def logout():
