@@ -28,6 +28,7 @@ allowing developers to manage credentials without switching away from the comman
 * **Logout & Termination:** Explicitly clear the session file to instantly lock the vault.
 * **Vault Management:** Add, Update, View, List, Search, and Delete entries.
 * **Secure View:** View a specific entry, revealing sensitive data (like the password).
+* **Clipboard Copy:** Copies the password to the clipboard when viewing an entry.
 * **Master Password Change:** Functionality to safely update your Master Password.
 * **Password Generation:** Integrated cryptographically secure password generator.
 * **Colour Scheme:** High contrast colour scheme to create visually appealing and informative outputs.
