@@ -1,7 +1,11 @@
+[build-system]
+requires = ["uv_build>=0.9.6,<0.10.0"]
+build-backend = "uv_build"
+
 [project]
 name = "PassMan"
 version = "0.1.0"
-description = "Secure password manager cli app"
+description = "A secure CLI password manager app"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
