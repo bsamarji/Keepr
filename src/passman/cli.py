@@ -10,7 +10,6 @@ from .config import DB_DIR_NAME, SECURITY_DIR_NAME, PEK_FILE_NAME
 from .config import COMMANDS_VALID_NO_ARGS
 from .password_generator import password_generator
 
-# TODO: Revise CLI messages
 # TODO: Write README.md
 
 def authenticate_from_session(ctx):
@@ -152,7 +151,9 @@ def change_master_password():
 
 
 @cli.command(
-    help="Creates a new password entry. Prompts user for username/email, password, URL, and note.",
+    help="Creates a new entry in the vault for the given service name. "
+         "Service names are unique. "
+         "Prompts user for username/email, password, URL, and note.",
     epilog="""\b
     EXAMPLES:
       # Interactive - prompts for all fields:
@@ -161,10 +162,10 @@ def change_master_password():
       # Generate password option - prompts for username, URL, and note. 
       $ passman add website_name -g
       \b
-      # Generate password option without special chars - automatically generates a strong new password:
+      # Generate password option without special chars:
       $ passman update github -g -w
       \b
-    NOTE: Using -g will automatically generate a strong password.
+    NOTE: Using -g will automatically generate a cryptographically strong password.
     \b
     """
 )
@@ -239,7 +240,7 @@ def add(ctx, service_name, generate, without_special_chars):
 
 
 @cli.command(
-    help="Retrieves a specific entry, displaying all sensitive and non-sensitive information.",
+    help="Retrieves a specific entry from the vault, displaying all sensitive and non-sensitive information.",
     epilog="""\b
     EXAMPLE:
       $ passman view github 
@@ -309,7 +310,7 @@ def view(ctx, service_name):
 
 
 @cli.command(
-    help="Searches for entries by matching the search term against service names.",
+    help="Searches the vault for entries by matching the search term against service names.",
     epilog="""\b
     EXAMPLE:
       # Find all services containing 'bank'
@@ -371,7 +372,7 @@ def search(ctx, search_term):
 
 @cli.command(
     name="list",  # Use name="list" because list() is a built-in Python function
-    help="Lists all stored entries by service name and non-sensitive metadata.",
+    help="Lists all stored entries in the vault by service name and non-sensitive metadata.",
     epilog="""\b
     EXAMPLE:
       $ passman list
@@ -427,16 +428,16 @@ def list_entries(ctx):
 
 
 @cli.command(
-    help="Updates only the password for an existing entry.",
+    help="Updates the password for an existing entry in the vault.",
     epilog="""\b
     EXAMPLES:
       # Interactive - prompts for new password:
       $ passman update gmail 
       \b
-      # Generate password option - automatically generates a strong new password:
+      # Generate password option - automatically generates a cryptographically strong password:
       $ passman update github -g
       \b
-      # Generate password option without special chars - automatically generates a strong new password:
+      # Generate password option without special chars - automatically generates a cryptographically strong password:
       $ passman update github -g -w
       \b
       NOTE: This command currently only updates the password field.
@@ -450,7 +451,7 @@ def list_entries(ctx):
     is_flag=True,
     help="Generate a cryptographically strong password instead of prompting for user input. "
          "By default it includes special characters. "
-         "Use the -w option to generate a strong password without special characters.",
+         "Use the -w option to generate a cryptographically strong password without special characters.",
 )
 @click.option(
     "-w",
