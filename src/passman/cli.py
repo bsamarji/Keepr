@@ -3,12 +3,12 @@ import tabulate
 import sys
 from pathlib import Path
 import pyperclip
-from . import db, security, session
-from .config import (COLOR_SENSITIVE_DATA, COLOR_PRIMARY_DATA, COLOR_WARNING, COLOR_ERROR,
+from passman import db, security, session
+from passman.config import (COLOR_SENSITIVE_DATA, COLOR_PRIMARY_DATA, COLOR_WARNING, COLOR_ERROR,
                      COLOR_HEADER, COLOR_PROMPT_BOLD, COLOR_PROMPT_LIGHT, COLOR_SUCCESS)
-from .config import DB_DIR_NAME, SECURITY_DIR_NAME, PEK_FILE_NAME
-from .config import COMMANDS_VALID_NO_ARGS
-from .password_generator import password_generator
+from passman.config import DB_DIR_NAME, SECURITY_DIR_NAME, PEK_FILE_NAME
+from passman.config import COMMANDS_VALID_NO_ARGS
+from passman.password_generator import password_generator
 
 # TODO: Write README.md
 

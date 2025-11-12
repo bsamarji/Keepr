@@ -2,8 +2,8 @@ import time
 import os
 from pathlib import Path
 import click
-from .config import SESSION_FILE_NAME, SESSION_TIMEOUT_SECONDS, SECURITY_DIR_NAME, DB_DIR_NAME
-from .config import COLOR_ERROR
+from passman.config import SESSION_FILE_NAME, SESSION_TIMEOUT_SECONDS, SECURITY_DIR_NAME, DB_DIR_NAME
+from passman.config import COLOR_ERROR
 
 def get_session_file_path():
     """
