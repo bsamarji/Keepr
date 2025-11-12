@@ -35,16 +35,88 @@ allowing developers to manage credentials without switching away from the comman
 
 ## Installation
 
-### Prerequisites
+### Option 1: Download the binary from GitHub Releases (Recommended)
+
+#### Steps
+
+1. Download the correct archive for your operating system from the latest release.
+2. Extract the contents into a permanent, easy-to-find directory (e.g., `~/tools/passman/` on Linux/Mac, or `C:\Tools\PassMan` on Windows).
+3. You must add the folder containing the executable (`passman` or `passman.exe`) to your system's PATH environment variable.
+
+#### Adding PassMan to Your System PATH
+
+Since PassMan is bundled as a high-performance directory, you must manually add the extracted folder to your system's **PATH** environment variable. This allows you to run the `passman` command from any terminal location.
+
+---
+
+##### macOS and Linux (Bash/Zsh)
+
+On macOS and Linux, you'll update your shell's configuration file (usually `.zshrc` or `.bashrc`).
+
+1.  **Move the Directory:** Move the extracted `passman` folder (containing the executable) to a clean, permanent location, like a new `tools` directory in your home folder:
+    ```bash
+    # Example: Move the extracted 'passman' folder into a 'tools' directory
+    mv /path/to/downloaded/passman ~/tools/
+    ```
+
+2.  **Edit Shell Configuration:** Open the configuration file for your shell (`.zshrc` for modern macOS, `.bashrc` for most Linux systems) using a text editor like `vim`:
+    ```bash
+    # For modern macOS (Zsh):
+    vim ~/.zshrc
+
+    # For most Linux systems (Bash):
+    vim ~/.bashrc
+    ```
+
+3.  **Add to PATH:** Add the following line to the **very end** of the file, replacing the path with your chosen directory:
+    ```bash
+    export PATH="$HOME/tools/passman:$PATH"
+    ```
+
+4.  **Apply Changes:** Save the file and apply the new configuration by running:
+    ```bash
+    source ~/.zshrc  # or source ~/.bashrc
+    ```
+
+5.  **Verify:** Open a **new terminal window** and run `passman --help`.
+
+---
+
+##### Windows (PowerShell)
+
+On Windows, you need to update your systems environment variables. This can be done through the GUI, but below I've posted instructions for doing this through the command line.
+
+1. Ensure you have moved the extracted `passman` folder to a permanent, simple location, for example: `C:\Tools\PassMan`.
+
+2. **Define the Path:** Open a new **Windows Terminal** window running PowerShell. First, set the path to your `passman` folder as a variable for easier use.
+    ```powershell
+    # Set the variable to the exact path where the 'passman' executable is located
+    $PassManPath = "C:\Tools\PassMan"
+   ```
+
+3. **Add the Path Permanently:** Use the built-in .NET class method to append the new directory to your User-level PATH variable. The third argument "User" ensures the change is permanent.
+    ```powershell
+   [System.Environment]::SetEnvironmentVariable(
+    "Path",
+    "$env:Path;$PassManPath",
+    "User"
+    )
+   ```
+   
+4. **Verify:** **Close and reopen** any active Command Prompt or PowerShell windows, and then run `passman --help`.
+
+### Option 2: Local Development Install (Recommended for Developers/Contributors)
+
+This option clones the repository and installs it in **editable mode** (`-e`), 
+making it ideal if you plan to modify or contribute to the source code.
+
+#### Prerequisites
 
 * Python 3.13 or newer.
 * The `uv` tool for fast dependency resolution and installation (highly recommended).
 * `git` for cloning the repository.
 
-### Option 1: Local Development Install (Recommended for Developers/Contributors)
-
-This option clones the repository and installs it in **editable mode** (`-e`), 
-making it ideal if you plan to modify or contribute to the source code.
+#### Steps
 
 1.  **Clone the repository:**
     ```bash
@@ -63,9 +135,17 @@ making it ideal if you plan to modify or contribute to the source code.
     uv pip install -e .
     ```
 
-### Option 2: Direct Install (From GitHub)
+### Option 3: Direct Install (From GitHub)
 
-If you only need to use the CLI and do not plan to make code changes, you can install directly from the GitHub repository URL.
+If you do not want to download and install the binary, then you can install the CLI as a python package directly from GitHub.
+
+#### Prerequisites
+
+* Python 3.13 or newer.
+* The `uv` tool for fast dependency resolution and installation (highly recommended).
+* `git` for cloning the repository.
+
+#### Steps
 
 1.  **Activate your desired environment** (or create one).
     ```bash
@@ -86,6 +166,13 @@ If you only need to use the CLI and do not plan to make code changes, you can in
     ```
 
 ## Usage & Commands
+
+### Warning For Python Package Users
+
+If you have installed passman as a python package (via options 2 or 3), then the python virtual environment where you installed passman to, 
+must be activated for you to use the passman CLI tool.
+
+### Initial Setup
 
 The first time you run any `passman` command, you will be guided through the process of creating your **Master Password**. 
 This password is the only key to your vault, so treat it as your most important secret.
