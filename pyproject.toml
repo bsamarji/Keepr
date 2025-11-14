@@ -3,11 +3,20 @@ requires = ["uv_build>=0.9.6,<0.10.0"]
 build-backend = "uv_build"
 
 [project]
-name = "PassMan"
-version = "0.1.0"
-description = "A secure CLI password manager app"
+name = "Keepr"
+version = "1.0.0"
+authors = [
+    {name="Ben Samarji", email="bensamarji5637@gmail.com"}
+]
+description = "Secure Command-Line Password Manager"
 readme = "README.md"
 requires-python = ">=3.13"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
 dependencies = [
     "click==8.3.0",
     "tabulate==0.9.0",
@@ -17,5 +26,9 @@ dependencies = [
     "pyinstaller>=6.16.0",
 ]
 
+[project.urls]
+Homepage = "https://github.com/bsamarji/Keepr"
+Issues = "https://github.com/bsamarji/Keepr/issues"
+
 [project.scripts]
-passman = "passman.cli:cli"
+keepr = "keepr.cli:cli"

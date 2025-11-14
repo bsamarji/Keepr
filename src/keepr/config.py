@@ -9,16 +9,16 @@ COLOR_PRIMARY_DATA = dict(fg="white")  # Non-sensitive primary data (timestamps,
 COLOR_SENSITIVE_DATA = dict(fg="green")  # Highly sensitive data (passwords in view)
 
 # --- DB FILE PATHS ---
-DB_FILE_NAME = "passman.db"
-DB_DIR_NAME = ".passman"
+DB_FILE_NAME = "keepr.db"
+DB_DIR_NAME = ".keepr"
 
 # --- SECURITY FILE NAMES ---
 SECURITY_DIR_NAME = ".security"
-SALT_FILE_NAME = "passman.salt"
-PEK_FILE_NAME = "passman.key"
+SALT_FILE_NAME = "keepr.salt"
+PEK_FILE_NAME = "keepr.key"
 
 # --- SESSION CONFIG ---
-SESSION_FILE_NAME = "passman.session"
+SESSION_FILE_NAME = "keepr.session"
 SESSION_TIMEOUT_SECONDS = 3600
 
 # --- COMMAND CONFIG ---

@@ -31,23 +31,23 @@ jobs:
         run: pip install pyinstaller
 
       - name: Build executable
-        run: pyinstaller --onedir --name passman src/passman/cli.py
+        run: pyinstaller --onedir --name keepr src/keepr/cli.py
 
       - name: Rename build directory
         run: |
           if [[ "$RUNNER_OS" == "Windows" ]]; then
-            mv dist/passman dist/passman-windows
+            mv dist/keepr dist/keepr-windows
           elif [[ "$RUNNER_OS" == "Linux" ]]; then
-            mv dist/passman dist/passman-linux
+            mv dist/keepr dist/keepr-linux
           elif [[ "$RUNNER_OS" == "macOS" ]]; then
-            mv dist/passman dist/passman-macos
+            mv dist/keepr dist/keepr-macos
           fi
         shell: bash
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: passman-${{ matrix.os }}
+          name: keepr-${{ matrix.os }}
           path: dist/*
 
   release:
@@ -66,19 +66,19 @@ jobs:
           merge-multiple: true
 
       - name: Make files executable (Linux/Mac)
-        run: chmod -R a+x passman-* || true
+        run: chmod -R a+x keepr-* || true
 
       - name: Compress binaries for release (CRITICAL FIX)
         run: |
           echo "Compressing Linux binary..."
-          tar -czvf passman-$RELEASE_TAG-linux.tar.gz passman-linux
+          tar -czvf keepr-$RELEASE_TAG-linux.tar.gz keepr-linux
 
           echo "Compressing macOS binary..."
-          tar -czvf passman-$RELEASE_TAG-macos.tar.gz passman-macos
+          tar -czvf keepr-$RELEASE_TAG-macos.tar.gz keepr-macos
 
           echo "Compressing Windows binary..."
-          cd passman-windows
-          zip -r ../passman-$RELEASE_TAG-windows.zip ./*
+          cd keepr-windows
+          zip -r ../keepr-$RELEASE_TAG-windows.zip ./*
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -88,6 +88,6 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            passman-${{ github.event.inputs.version }}-linux.tar.gz
-            passman-${{ github.event.inputs.version }}-macos.tar.gz
-            passman-${{ github.event.inputs.version }}-windows.zip
+            keepr-${{ github.event.inputs.version }}-linux.tar.gz
+            keepr-${{ github.event.inputs.version }}-macos.tar.gz
+            keepr-${{ github.event.inputs.version }}-windows.zip

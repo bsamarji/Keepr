@@ -3,14 +3,12 @@ import tabulate
 import sys
 from pathlib import Path
 import pyperclip
-from passman import db, security, session
-from passman.config import (COLOR_SENSITIVE_DATA, COLOR_PRIMARY_DATA, COLOR_WARNING, COLOR_ERROR,
-                     COLOR_HEADER, COLOR_PROMPT_BOLD, COLOR_PROMPT_LIGHT, COLOR_SUCCESS)
-from passman.config import DB_DIR_NAME, SECURITY_DIR_NAME, PEK_FILE_NAME
-from passman.config import COMMANDS_VALID_NO_ARGS
-from passman.password_generator import password_generator
-
-# TODO: Write README.md
+from keepr import db, security, session
+from keepr.config import (COLOR_SENSITIVE_DATA, COLOR_PRIMARY_DATA, COLOR_WARNING, COLOR_ERROR,
+                          COLOR_HEADER, COLOR_PROMPT_BOLD, COLOR_PROMPT_LIGHT, COLOR_SUCCESS)
+from keepr.config import DB_DIR_NAME, SECURITY_DIR_NAME, PEK_FILE_NAME
+from keepr.config import COMMANDS_VALID_NO_ARGS
+from keepr.password_generator import password_generator
 
 def authenticate_from_session(ctx):
     """
@@ -31,9 +29,9 @@ def authenticate_from_session(ctx):
         is_only_subcommand = (len(sys.argv) == 2 and subcommand_name is not None)
 
         # Suppress the message if:
-        # 1. Help was explicitly requested (e.g., passman view -h)
+        # 1. Help was explicitly requested (e.g., keepr view -h)
         # 2. The subcommand was run with no args AND that command is NOT in the valid no-arg list.
-        #    (e.g., 'passman add' is suppressed, but 'passman list' is NOT suppressed)
+        #    (e.g., 'keepr add' is suppressed, but 'keepr list' is NOT suppressed)
         should_suppress = (
                 is_help_requested or
                 (subcommand_name in ['login', 'logout']) or
@@ -43,19 +41,19 @@ def authenticate_from_session(ctx):
         if not should_suppress:
             # Only print if it's a valid command execution (like 'list') or a valid command with arguments
             click.secho("Vault is unlocked via the active session.", **COLOR_SUCCESS)
-            click.secho("Run 'passman logout' when done.", **COLOR_WARNING)
+            click.secho("Run 'keepr logout' when done.", **COLOR_WARNING)
 
         return True
     return False
 
 @click.group(
     context_settings=dict(help_option_names=["-h", "--help"]),
-    epilog="Use 'passman <command> --help' for command-specific usage and examples.",
+    epilog="Use 'keepr <command> --help' for command-specific usage and examples.",
 )
 @click.pass_context
 def cli(ctx):
     """
-    PassMan - A secure CLI password manager app.
+    Keepr - Secure Command-Line Password Manager
 
     Manages passwords and sensitive data locally using an encrypted SQLite vault.
     """
@@ -69,12 +67,10 @@ def cli(ctx):
             # Check if help was explicitly requested. If so, suppress the lock warning.
             is_help_requested = any(h in sys.argv for h in ['-h', '--help'])
             if not is_help_requested:
-                click.secho("Vault is LOCKED. Run 'passman login' to unlock it.", **COLOR_ERROR)
+                click.secho("Vault is LOCKED. Run 'keepr login' to unlock it.", **COLOR_ERROR)
 
 
-@cli.command(help="Unlocks the vault for subsequent commands in the terminal to be run without authentication"
-                  " until session timeout or explicit logout. "
-                  "Each session lasts 1 hour.")
+@cli.command(help="Logs in and unlocks your vault (creates or renews your session). Each session lasts 1 hour.")
 def login():
     """
     Prompts for the master password, decrypts the PEK, and stores it in a session file.
@@ -107,10 +103,10 @@ def login():
     if session.store_session_data(pek=session_pek):
         db.initialise_db(pek=session_pek)  # Ensure DB is initialized with the PEK
         click.secho(f"\nVault UNLOCKED. Commands will now run without further authentication.", **COLOR_SUCCESS)
-        click.secho("Remember to run 'passman logout' when finished.", **COLOR_WARNING)
+        click.secho("Remember to run 'keepr logout' when finished.", **COLOR_WARNING)
         click.secho("The session will terminate in 1 hour.", **COLOR_WARNING)
 
-@cli.command(help="Locks the vault by deleting the active session file.")
+@cli.command(help="Instantly locks the vault and clears any active session.")
 def logout():
     """
     Deletes the session file, requiring re-authentication for the next command.
@@ -123,8 +119,7 @@ def logout():
 
 @cli.command(
     name="change-master",
-    help="Changes the master password for the user. "
-         "Prompts the user for their current master password, and then their new master password.",
+    help="Safely change your Master Password.",
 )
 def change_master_password():
     """
@@ -151,19 +146,17 @@ def change_master_password():
 
 
 @cli.command(
-    help="Creates a new entry in the vault for the given service name. "
-         "Service names are unique. "
-         "Prompts user for username/email, password, URL, and note.",
+    help="Creates a new entry in the vault, prompting for details.",
     epilog="""\b
     EXAMPLES:
       # Interactive - prompts for all fields:
-      $ passman add new_service
+      $ keepr add new_service
       \b
       # Generate password option - prompts for username, URL, and note. 
-      $ passman add website_name -g
+      $ keepr add website_name -g
       \b
       # Generate password option without special chars:
-      $ passman update github -g -w
+      $ keepr update github -g -w
       \b
     NOTE: Using -g will automatically generate a cryptographically strong password.
     \b
@@ -175,8 +168,7 @@ def change_master_password():
     "--generate",
     is_flag=True,
     help="Generate a cryptographically strong password instead of prompting for user input. "
-         "By default it includes special characters. "
-         "Use the -w option to generate a strong password without special characters.",
+         "By default it includes special characters.",
 )
 @click.option(
     "-w",
@@ -240,10 +232,10 @@ def add(ctx, service_name, generate, without_special_chars):
 
 
 @cli.command(
-    help="Retrieves a specific entry from the vault, displaying all sensitive and non-sensitive information.",
+    help="Displays a specific entry's details, including the password.",
     epilog="""\b
     EXAMPLE:
-      $ passman view github 
+      $ keepr view github 
       \b
       NOTE: This command displays the raw username and password. The information should be copied 
       and the terminal screen cleared immediately for security.
@@ -310,13 +302,13 @@ def view(ctx, service_name):
 
 
 @cli.command(
-    help="Searches the vault for entries by matching the search term against service names.",
+    help="Finds entries matching a given keyword.",
     epilog="""\b
     EXAMPLE:
       # Find all services containing 'bank'
-      $ passman search bank
+      $ keepr search bank
       \b
-      NOTE: Usernames and passwords are intentionally EXCLUDED. Use 'passman view <service>' 
+      NOTE: Usernames and passwords are intentionally EXCLUDED. Use 'keepr view <service>' 
       to retrieve sensitive credentials for a specific entry.
       \b
     """,
@@ -372,12 +364,12 @@ def search(ctx, search_term):
 
 @cli.command(
     name="list",  # Use name="list" because list() is a built-in Python function
-    help="Lists all stored entries in the vault by service name and non-sensitive metadata.",
+    help="Shows all entries in a clean table (passwords and usernames hidden).",
     epilog="""\b
     EXAMPLE:
-      $ passman list
+      $ keepr list
       \b
-      NOTE: Usernames and passwords are intentionally EXCLUDED. Use 'passman view <service>' 
+      NOTE: Usernames and passwords are intentionally EXCLUDED. Use 'keepr view <service>' 
       to retrieve sensitive credentials for a specific entry.
       \b
     """,
@@ -432,13 +424,13 @@ def list_entries(ctx):
     epilog="""\b
     EXAMPLES:
       # Interactive - prompts for new password:
-      $ passman update gmail 
+      $ keepr update gmail 
       \b
       # Generate password option - automatically generates a cryptographically strong password:
-      $ passman update github -g
+      $ keepr update github -g
       \b
       # Generate password option without special chars - automatically generates a cryptographically strong password:
-      $ passman update github -g -w
+      $ keepr update github -g -w
       \b
       NOTE: This command currently only updates the password field.
       \b
@@ -501,7 +493,7 @@ def update(ctx, service_name, generate, without_special_chars):
     help="Permanently deletes an entry from the vault after a confirmation prompt.",
     epilog="""\b
     EXAMPLE:
-      $ passman delete old_site
+      $ keepr delete old_site
       \b
       WARNING: Deletion is permanent and cannot be undone.
       \b

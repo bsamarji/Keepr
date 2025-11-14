@@ -1,6 +1,6 @@
 import string
 import secrets
-from passman.config import PASSWORD_LENGTH, PASSWORD_SPECIAL_CHARS
+from keepr.config import PASSWORD_LENGTH, PASSWORD_SPECIAL_CHARS
 
 def password_generator(without_special_chars=False):
     """

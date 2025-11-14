@@ -1,92 +1,101 @@
-# PassMan: Secure Command-Line Password Manager
+# Keepr 🗝️
 
-## Description
+<p align="center">
+  <img src="https://img.shields.io/pypi/v/keepr.svg" />
+  <img alt="Static Badge" src="https://img.shields.io/badge/built_with-python3-green.svg">
+  <img src="https://img.shields.io/badge/license-MIT-blue.svg" />
+  <img src="https://img.shields.io/github/stars/bsamarji/Keepr?style=social" />
+</p>
 
-**PassMan** is a secure command-line interface (CLI) password manager designed for software developers. 
-Compatible with macOS, Linux and Windows, the data is stored in an encrypted SQLite database that resides exclusively on your local machine, 
-ensuring full ownership and control of your sensitive information.
+> A lightweight, end-to-end encrypted password manager for developers — built for the terminal.
 
-The vault is protected by industry-standard encryption, unlocked only through your unique Master Password. 
-Since the encrypted SQLite database (`sqlcipher3`) is self-contained and serverless, the risk surface is minimized: 
-the only vector for access is gaining physical access to your machine and either knowing your Master Password or 
-successfully breaking the high-iteration encryption, which is computationally infeasible.
 
-### Background
+Keepr is a secure, cross-platform command-line password manager designed for software developers.  
+It stores your credentials in a fully encrypted [SQLCipher](https://www.zetetic.net/sqlcipher/) database that lives **entirely on your local machine**, ensuring complete control over your data. 
+No servers, no cloud syncing — just strong, local encryption.
 
-I built this app out of frustration for not having anywhere safe and convenient to store sensitive data at work. 
-As a software developer, I'm constantly using credentials, repository access tokens, API keys, and other secrets.
-
-**PassMan** solves this problem by enabling a secure, seamless workflow directly in the terminal, 
-allowing developers to manage credentials without switching away from the command line.
-
-## Features
-
-**PassMan** is a feature-rich CLI with built-in support for:
-
-* **Master Key Setup:** Secure creation and confirmation of your initial Master Password.
-* **Authentication & Session:** Login with your Master Password creates an active, timed session (default: 1 hour) to keep the vault conveniently unlocked during your workflow.
-* **Logout & Termination:** Explicitly clear the session file to instantly lock the vault.
-* **Vault Management:** Add, Update, View, List, Search, and Delete entries.
-* **Secure View:** View a specific entry, revealing sensitive data (like the password).
-* **Clipboard Copy:** Copies the password to the clipboard when viewing an entry.
-* **Master Password Change:** Functionality to safely update your Master Password.
-* **Password Generation:** Integrated cryptographically secure password generator.
-* **Colour Scheme:** High contrast colour scheme to create visually appealing and informative outputs.
-
-### The PassMan Workflow
-
-#### Bring Up the Docs
-
-![help](https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExNnpkMG5tZXhvcmljNDB5dnczazBobmQ5cHE3NG54cWw0M3d1am5hYyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ArvI7knOKwOsS5fVnP/giphy.gif)
-
-#### Login to unlock the vault and create an active session in your terminal
-
-![login](https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExd25wa3hiNW41NzNlMGN3NzFkZ3R6czc2NGNnaXNoZmV1cTY1eHB6cyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/qyBUSUbXRGlN9GiwDb/giphy.gif)
-
-#### Add a new entry
-
-![add](https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExNnI3N2M2azViM3ZleTVkMXI2N3NibDlmcnZncWZmcjNjbTQ2cTRsMyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Pyk7NfGVJtnl45SglZ/giphy.gif)
-
-#### View an existing entry and copy the password to your clipboard
-
-![view](https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExcHFndjRqejN5bWxuYjN4bXoxczY2Zjc3bzUxMmdvMGV0cGI1M3NnYiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/qSSflaPoo5P0K5yfD6/giphy.gif)
-
-#### Update the password for an existing entry
-
-![update](https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExdTVwYWMxOG9qaml2Y3I1bDV5OGFzemI1YXhrbnA2dml1OHZhMXhmMSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xme4xhNyP8GPK8lv9p/giphy.gif)
-
-#### Delete an existing entry
-
-![delete](https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExaTBnZGJ1a3hvMXAyNzB2NDJtMGtkZm1qMmd0aXM1MzRvaWhzNnNyZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/svyllOVirXYneqrV1z/giphy.gif)
-
-#### Logout and lock the vault
-
-![logout](https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExazU2ODgzandyMmpubjExNmVpcWphcjJlMDdxMm9tNHp6NjRlNjZnbCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Macyoj6v0mRaqB78vm/giphy.gif)
-
-## Installation
-
-### Option 1: Download the binary from GitHub Releases (Recommended)
-
-#### Steps
-
-1. Download the correct archive for your operating system from the latest release.
-2. Extract the contents into a permanent, easy-to-find directory (e.g., `~/tools/passman/` on Linux/Mac, or `C:\Tools\PassMan` on Windows).
-3. You must add the folder containing the executable (`passman` or `passman.exe`) to your system's PATH environment variable.
-
-#### Adding PassMan to Your System PATH
-
-Since PassMan is bundled as a high-performance directory, you must manually add the extracted folder to your system's **PATH** environment variable. This allows you to run the `passman` command from any terminal location.
+The vault is protected by a **Master Password** derived into a strong encryption key using industry-standard PBKDF2-HMAC (SHA256, 1.2M iterations).
+Your data remains safe even if the database or key files are compromised.
 
 ---
 
-##### macOS and Linux (Bash/Zsh)
+## 🧠 Why Keepr?
+
+As a developer, you constantly handle sensitive data — API keys, repository tokens, SSH passwords, and configuration secrets. 
+Keepr was built to simplify that workflow by letting you **store, search, and retrieve secrets directly from the terminal**, without switching tools or exposing plaintext data.
+
+---
+
+## ⚡ Quick Start
+
+Install Keepr from [PyPI](https://pypi.org/project/keepr/):
+
+```bash
+pip install keepr
+
+keepr login # Set or unlock the master password
+
+keepr add github # Add a credential
+
+keepr view github # Retrieve entry securely
+```
+
+That’s it — your credentials are stored locally, fully encrypted, and accessible only through your master key.
+
+---
+
+## 🧩 Features at a Glance
+
+* 🔒 End-to-End Encryption — AES-256 via SQLCipher and Fernet.
+* 🔑 Master Password — Derives a Key Encryption Key (KEK) with PBKDF2-HMAC.
+* 🕒 Timed Sessions — Stay logged in for convenience, auto-lock after expiry.
+* 🧭 Vault Management — Add, update, list, search, or delete credentials.
+* 🧰 Password Generator — Cryptographically secure, configurable length.
+* 🧼 Clipboard Copy — Copy credentials without displaying them in plaintext.
+* 🎨 Custom Color Scheme — Clear, high-contrast terminal output.
+
+---
+
+## 📦 Installation
+
+You can install Keepr either via **PyPI (recommended)** or as a **standalone binary** if you can’t install Python.
+
+---
+
+### 🐍 Option 1: Install from PyPI (Recommended)
+
+Keepr supports **macOS**, **Linux**, and **Windows**.
+
+```bash
+pip install keepr
+```
+
+Once installed, verify your installation:
+
+```bash
+keepr --help
+```
+
+### 💻 Option 2: Download a Prebuilt Binary
+
+If you prefer not to install Python, Keepr provides precompiled binaries built with PyInstaller, which bundle Python and all dependencies.
+
+👉 Download the latest binary for your OS from the GitHub Releases page.
+
+#### Steps
+
+1. Download the correct archive for your OS.
+2. Extract the contents to a permanent folder (e.g. `~/tools/keepr` on macOS/Linux, or `C:\Tools\Keepr` on Windows).
+3. Add that folder to your system’s PATH so keepr can be run from anywhere.
+
+<details> <summary>macOS & Linux Setup</summary>
 
 On macOS and Linux, you'll update your shell's configuration file (usually `.zshrc` or `.bashrc`).
 
-1.  **Move the Directory:** Move the extracted `passman` folder (containing the executable) to a clean, permanent location, like a new `tools` directory in your home folder:
+1.  **Move the Directory:** Move the extracted `keepr` folder (containing the executable) to a clean, permanent location, like a new `tools` directory in your home folder:
     ```bash
-    # Example: Move the extracted 'passman' folder into a 'tools' directory
-    mv /path/to/downloaded/passman ~/tools/
+    # Example: Move the extracted 'keepr' folder into a 'tools' directory
+    mv /path/to/downloaded/keepr ~/tools/
     ```
 
 2.  **Edit Shell Configuration:** Open the configuration file for your shell (`.zshrc` for modern macOS, `.bashrc` for most Linux systems) using a text editor like `vim`:
@@ -100,7 +109,7 @@ On macOS and Linux, you'll update your shell's configuration file (usually `.zsh
 
 3.  **Add to PATH:** Add the following line to the **very end** of the file, replacing the path with your chosen directory:
     ```bash
-    export PATH="$HOME/tools/passman:$PATH"
+    export PATH="$HOME/tools/keepr:$PATH"
     ```
 
 4.  **Apply Changes:** Save the file and apply the new configuration by running:
@@ -108,179 +117,226 @@ On macOS and Linux, you'll update your shell's configuration file (usually `.zsh
     source ~/.zshrc  # or source ~/.bashrc
     ```
 
-5.  **Verify:** Open a **new terminal window** and run `passman --help`.
+5.  **Verify:** Open a **new terminal window** and run `keepr --help`.
 
----
+</details>
 
-##### Windows (PowerShell)
+<details> <summary>Windows (PowerShell) Setup</summary>
 
 On Windows, you need to update your systems environment variables. This can be done through the GUI, but below I've posted instructions for doing this through the command line.
 Please ensure you're running Powershell in **Administrator Mode**.
 
-1. Ensure you have moved the extracted `passman` folder to a permanent, simple location, for example: `C:\Tools\PassMan`.
+1. Ensure you have moved the extracted `keepr` folder to a permanent, simple location, for example: `C:\Tools\Keepr`.
 
-2. **Define the Path:** Open a new **Windows Terminal** window running PowerShell. First, set the path to your `passman` folder as a variable for easier use.
+2. **Define the Path:** Open a new **Windows Terminal** window running PowerShell. First, set the path to your `keepr` folder as a variable for easier use.
     ```powershell
-    # Set the variable to the exact path where the 'passman' executable is located
-    $PassManPath = "C:\Tools\PassMan"
+    # Set the variable to the exact path where the 'keepr' executable is located
+    $KeeprPath = "C:\Tools\Keepr"
    ```
 
 3. **Add the Path Permanently:** Use the built-in .NET class method to append the new directory to your User-level PATH variable. The third argument "User" ensures the change is permanent.
     ```powershell
    [System.Environment]::SetEnvironmentVariable(
     "Path",
-    "$env:Path;$PassManPath",
+    "$env:Path;$KeeprPath",
     "User"
     )
    ```
 
 4. **Exclude the Dir From Windows Defender:** Windows defender massively hampers performance of this executable as it scans the directory everytime which can take minutes. To avoid this, please exclude it from defender scans:
     ```powershell
-   Add-MpPreference -ExclusionPath $PassManPath
+   Add-MpPreference -ExclusionPath $KeeprPath
    ```
    
-5. **Verify:** **Close and reopen** any active Command Prompt or PowerShell windows, and then run `passman --help`.
+5. **Verify:** **Close and reopen** any active Command Prompt or PowerShell windows, and then run `keepr --help`.
 
-### Option 2: Local Development Install (Recommended for Developers/Contributors)
+</details>
 
-This option clones the repository and installs it in **editable mode** (`-e`), 
-making it ideal if you plan to modify or contribute to the source code.
+---
 
-#### Prerequisites
+## 🧠 Usage Overview
 
-* Python 3.13 or newer.
-* The `uv` tool for fast dependency resolution and installation (highly recommended).
-* `git` for cloning the repository.
+Keepr is designed to feel natural for developers — everything happens directly in your terminal. 
 
-#### Steps
+**Note:** You may have to resize your terminal so the outputs from keepr can be displayed without breaking up.
 
-1.  **Clone the repository:**
-    ```bash
-    git clone [https://github.com/bsamarji/PassMan.git](https://github.com/bsamarji/PassMan.git)
-    cd PassMan
-    ```
+All commands follow the format:
 
-2.  **Install the project (Editable Mode) and Activate:**
-    This installs all dependencies and creates the `passman` executable wrapper script within your virtual environment's path.
-    ```bash
-    # Create and activate the virtual environment
-    python -m venv .venv
-    source .venv/bin/activate
-    
-    # Install dependencies using uv
-    uv pip install -e .
-    ```
+```bash
+keepr <command> [arguments]
+```
 
-### Option 3: Direct Install (From GitHub)
+If you ever get lost, use:
 
-If you do not want to download and install the binary, then you can install the CLI as a python package directly from GitHub.
+```bash
+keepr --help
+```
 
-#### Prerequisites
+### 🔐 First-Time Setup
 
-* Python 3.13 or newer.
-* The `uv` tool for fast dependency resolution and installation (highly recommended).
-* `git` for cloning the repository.
+Before using keepr, you must create your master password. 
+This password is the only way to unlock your vault — it cannot be recovered if lost.
+To do this run:
 
-#### Steps
+```bash
+keepr login
+```
 
-1.  **Activate your desired environment** (or create one).
-    ```bash
-    # Example: create and activate a new venv
-    python -m venv passman-cli-venv
-    source passman-cli-venv/bin/activate
-    ```
+Keepr will guide you through the initial setup, generating encryption keys and a secure vault on your local machine.
+Once logged in, your vault remains unlocked for a timed session of 1 hour to support a smooth workflow.
 
-2.  **Install PassMan directly:**
-    ```bash
-    uv pip install git+[https://github.com/bsamarji/PassMan.git](https://github.com/bsamarji/PassMan.git)
-    ```
+### ⚙️ Core Commands
 
-3.  **Run the CLI:**
-    The `passman` command is now available:
-    ```bash
-    $ passman --help
-    ```
+All commands follow the structure: `$ keepr <command> [arguments]`
 
-## Usage & Commands
+| Command         | Description                                                             | Example                   |
+|:----------------|:------------------------------------------------------------------------|:--------------------------|
+| `login`         | Logs in and unlocks your vault (creates or renews your session).        | `$ keepr login`         |
+| `logout`        | Instantly locks the vault and clears any active session.                | `$ keepr logout`        |
+| `change-master` | Safely change your Master Password.                                                                        | `$ keepr change-master` |
 
-### Warning For Python Package Users
+### 🔑 Vault Management
 
-If you have installed passman as a python package (via options 2 or 3), then the python virtual environment where you installed passman to, 
-must be activated for you to use the passman CLI tool.
+You can only run the vault management commands once you've logged in and created an active session.
 
-### Initial Setup
+| Command | Description                                                  | Example |
+| :--- |:-------------------------------------------------------------| :--- |
+| `add` | Creates a new entry in the vault, prompting for details.     | `$ keepr add github` |
+| `view` | Displays a specific entry's details, including the password. | `$ keepr view example_site` |
+| `list` | Shows all entries in a clean table (passwords hidden).       | `$ keepr list` |
+| `search` | Finds entries matching a given keyword.                      | `$ keepr search work` |
+| `update` | Updates the password for an existing entry.                  | `$ keepr update old_site` |
+| `delete` | **Permanently deletes** an entry after confirmation.         | `$ keepr delete test_account` |
 
-The first time you run any `passman` command, you will be guided through the process of creating your **Master Password**. 
-This password is the only key to your vault, so treat it as your most important secret.
+### 🧩 Session Management
 
-All commands follow the structure: `$ passman <command> [arguments]`
+Keepr uses a temporary session file to keep your vault unlocked during your work session. 
+Sessions last 1 hour.
+You can logout manually anytime using keepr logout. 
+After expiration, Keepr requires your Master Password again.
 
-### Core Commands
+---
 
-| Command         | Description                                                              | Example                   |
-|:----------------|:-------------------------------------------------------------------------|:--------------------------|
-| `login`         | Explicitly logs in and starts a new session (or updates an expired one). | `$ passman login`         |
-| `logout`        | Clears the session file, locking the vault immediately.                  | `$ passman logout`        |
-| `change-master` | Enables the user to change their master password.                        | `$ passman change-master` |
+## 🛡️ Security Model
 
-### Vault Management
+Keepr follows a two-tier encryption model for maximum protection of your secrets.
 
-| Command | Description                                                                | Example |
-| :--- |:---------------------------------------------------------------------------| :--- |
-| `add` | Creates a new entry in the vault, prompting for details.                   | `$ passman add github` |
-| `view` | Retrieves and displays a specific entry's details, including the password. | `$ passman view example_site` |
-| `list` | Displays a table of all entries in the vault (passwords are hidden).       | `$ passman list` |
-| `search` | Searches entries that contain a given string.                              | `$ passman search work` |
-| `update` | Updates the password for an existing entry.                                | `$ passman update old_site` |
-| `delete` | **Permanently deletes** an entry after a confirmation prompt.              | `$ passman delete test_account` |
+### 1. 🔑 Master Key Derivation (KEK)
+   * Input: Master Password + random Salt
+   * Algorithm: PBKDF2-HMAC (SHA256, 1,200,000 iterations)
+   * Output: Key Encryption Key (KEK)
+   * The KEK is never stored — it’s derived at runtime from your Master Password.
+   * 
+---
 
-## Security Model
+### 2. 🧠 Primary Encryption Key (PEK)
+   * The PEK is the actual key that encrypts your vault (keepr.db) using SQLCipher.
+   * It’s stored encrypted on disk (.keepr/.security/keepr.key) — wrapped with your KEK via cryptography.Fernet.
+   * 
+---
 
-PassMan uses a robust, two-tier encryption system built on top of `sqlcipher3` (for the database) and `cryptography` (for key management) to protect your data. 
+### 3. 🧭 Unlocking Flow
+   1. You enter your Master Password.
+   2. Keepr derives the KEK from it.
+   3. The KEK decrypts your encrypted PEK.
+   4. The PEK opens your SQLCipher database.
+   5. A temporary session file keeps the vault open until timeout or logout.
 
-### 1. Master Key Derivation (KEK)
+Even if an attacker steals both your vault and key files, your data remains secure — without your Master Password, decryption is computationally infeasible.
 
-* **Input:** Your Master Password and a unique, randomly generated Salt (`.passman/.security/passman.salt`).
-* **Function:** PBKDF2HMAC with SHA256, running through a high number of iterations (currently 1,200,000) to resist brute-force attacks.
-* **Output:** The **Key Encryption Key (KEK)**. This key is *never* stored on disk; it is generated purely from your Master Password when you log in.
+---
 
-### 2. Primary Encryption Key (PEK)
+### 🏰 Local-Only Security
 
-* **Key Purpose:** The PEK is the actual 32-byte key used by `sqlcipher3` to encrypt and decrypt the entire vault file (`passman.db`).
-* **Storage:** The PEK is initially generated and then **immediately encrypted** using the KEK (from step 1) via the `Fernet` symmetric encryption library.
-* **Persistence:** This *encrypted* PEK is the only key material stored on your filesystem (`.passman/.security/passman.key`).
+Keepr is 100% offline — no network requests, telemetry, or remote storage. 
+Everything (database, keys, and session) resides in your home directory under:
 
-### How Unlocking Works
+```bash
+~/.keepr/
+```
 
-1.  **Authentication:** The user enters the Master Password.
-2.  **KEK Generation:** The KEK is derived instantly from the Master Password and Salt.
-3.  **PEK Decryption:** The KEK is used to decrypt the stored, locked PEK file.
-4.  **Vault Access:** The now-unlocked PEK is temporarily used to open the `sqlcipher3` database connection.
-5.  **Session:** For convenience, the unlocked PEK is stored in a time-limited session file (`.passman/.security/passman.session`). If the session expires, steps 1-4 must be repeated, requiring the Master Password again.
+This ensures full data ownership and an extremely small attack surface.
 
-This layered architecture ensures that even if an attacker compromises your system and gains access to the database
-file and the encrypted key file, the data remains protected without the knowledge of your Master Password.
+---
 
-## Support
+### 💡 Pro Tips
 
-* If you encounter any bugs or problems then please raise a ticket in the Issues tab with the `bug` label.
-* If you would like to propose any changes then you can also raise a ticket in the Issues tab with the `enhancement` label.
-* If you have any other questions then feel free to reach out to the active maintainers!
+* Use short, memorable entry names (e.g., aws, github, prod-db).
+* Rotate your Master Password occasionally with `keepr change-master`.
+* Always lock the vault when leaving your machine:
 
-## Roadmap
+```bash
+keepr logout 
+```
 
-* Option to update configuration settings of the CLI (like colour scheme, session duration and password generator length).
-* Shell autocompletion on tab for passman and its commands and arguments.
-* Downloadable binary for passman, so it can be installed and added into the user's path, without having to install python, uv or git.
+---
 
-## Authors
+## 🤝 Contributing
 
-* Ben Samarji (bensamarji5637@gmail.com) - active maintainer
+Contributions are welcome — whether it's bug reports, new ideas, or pull requests.
 
-## License
+If you're planning a substantial change, please open an issue first so we can discuss the approach.
 
-MIT License (see LICENSE.md)
+### How to Contribute
 
-## Project status
+1. **Fork** the repository  
+2. **Create a branch** for your feature or fix  
+3. **Commit** your changes with clear messages  
+4. **Open a Pull Request**  
+5. Wait for review and feedback
 
-Active development
+---
+
+## 🛠 Support
+
+If you run into problems, the best way to get help is through the GitHub issue tracker.
+
+- 🐛 **Bug Reports:**  
+  Tag the issue with the `bug` label and include steps to reproduce.
+
+- 💡 **Feature Requests:**  
+  Use the `enhancement` label and describe what you’d like to see added or improved.
+
+- ❓ **General Questions:**  
+  Feel free to open an issue or reach out directly to the maintainers.
+
+---
+
+## 🗺 Roadmap
+
+Planned future features and improvements:
+
+- ⚙️ Customizable CLI configuration (color themes, session duration, default password generator length).
+- ⌨️ Shell autocompletion for Keepr commands and arguments.
+- 🧪 Password strength checks.
+- 🧵 Bulk import/export of entries.
+- 🔄 A copy command, which copies a password for an entry to the clipboard, without displaying any info on screen.
+- 🧩 A generate command, which just generates a password and displays it on screen (separate to the -g option for the add command).
+- 🛡️ Optional Two-factor authentication.
+
+If you want to help shape the roadmap, feel free to open an issue or submit proposals.
+
+---
+
+## 👤 Authors
+
+- **Ben Samarji** — Active Maintainer  
+  📧 bensamarji5637@gmail.com
+
+---
+
+## 📜 License
+
+Keepr is offered under the **MIT License**.
+See `LICENSE.md` for full details.
+
+You are free to use, modify, and distribute the software as long as the license terms are respected.
+
+---
+
+## 🚀 Project Status
+
+**Active development**
+
+New features, performance improvements, and security enhancements are added regularly. 
+Community feedback is always appreciated, and contributions are welcome!
