@@ -1,14 +1,12 @@
-# Keepr 🗝️
-
-<p align="center">
-  <img src="https://img.shields.io/pypi/v/keepr.svg" />
-  <img alt="Static Badge" src="https://img.shields.io/badge/built_with-python3-green.svg">
-  <img src="https://img.shields.io/badge/license-MIT-blue.svg" />
-  <img src="https://img.shields.io/github/stars/bsamarji/Keepr?style=social" />
-</p>
-
-> A lightweight, end-to-end encrypted password manager for developers — built for the terminal.
-
+<div align="center">
+<h1>Keepr 🗝️</h1>
+<br/>
+<a href="https://pypi.org/project/Keepr"><img src="https://img.shields.io/pypi/v/keepr.svg" alt="PyPI Version"></a>
+<a href="https://www.python.org/"><img src="https://img.shields.io/badge/built_with-python3-green.svg" alt="Built with Python3"></a>
+<a href="LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License badge"></a>
+<a href="https://github.com/bsamarji/Keepr"><img src="https://img.shields.io/github/stars/bsamarji/Keepr?style=social" alt="GitHub stars"></a>
+<h3>A lightweight, end-to-end encrypted password manager for developers - built for the terminal.</h3>
+</div>
 
 Keepr is a secure, cross-platform command-line password manager designed for software developers.  
 It stores your credentials in a fully encrypted [SQLCipher](https://www.zetetic.net/sqlcipher/) database that lives **entirely on your local machine**, ensuring complete control over your data. 
@@ -80,7 +78,7 @@ keepr --help
 
 If you prefer not to install Python, Keepr provides precompiled binaries built with PyInstaller, which bundle Python and all dependencies.
 
-👉 Download the latest binary for your OS from the GitHub Releases page.
+👉 Download the latest binary for your OS from the [GitHub Releases page](https://github.com/bsamarji/Keepr/releases).
 
 #### Steps
 
