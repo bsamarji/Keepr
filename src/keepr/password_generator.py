@@ -1,6 +1,6 @@
 import string
 import secrets
-from keepr.config import PASSWORD_LENGTH, PASSWORD_SPECIAL_CHARS
+from keepr.internal_config import PASSWORD_GENERATOR_LENGTH, PASSWORD_GENERATOR_SPECIAL_CHARS
 
 def password_generator(without_special_chars=False):
     """
@@ -12,12 +12,12 @@ def password_generator(without_special_chars=False):
     if without_special_chars:
         alphabet = string.ascii_letters + string.digits
     else:
-        alphabet = string.ascii_letters + string.digits + PASSWORD_SPECIAL_CHARS
+        alphabet = string.ascii_letters + string.digits + PASSWORD_GENERATOR_SPECIAL_CHARS
     while True:
-        password = ''.join(secrets.choice(alphabet) for i in range(PASSWORD_LENGTH))
+        password = ''.join(secrets.choice(alphabet) for i in range(PASSWORD_GENERATOR_LENGTH))
         if (any(c.islower() for c in password)
                 and any(c.isupper() for c in password)
-                and any(c in password for c in PASSWORD_SPECIAL_CHARS)
+                and any(c in password for c in PASSWORD_GENERATOR_SPECIAL_CHARS)
                 and sum(c.isdigit() for c in password) >= 3):
             break
     return password

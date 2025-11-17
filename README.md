@@ -2,8 +2,9 @@
 <h1>Keepr 🗝️</h1>
 <br/>
 <a href="https://pypi.org/project/Keepr"><img src="https://img.shields.io/pypi/v/keepr.svg" alt="PyPI Version"></a>
+<a href="https://pepy.tech/projects/keepr"><img src="https://static.pepy.tech/personalized-badge/keepr?period=total&units=ABBREVIATION&left_color=GREY&right_color=MAGENTA&left_text=downloads" alt="PyPI Downloads"></a>
 <a href="https://www.python.org/"><img src="https://img.shields.io/badge/built_with-python3-green.svg" alt="Built with Python3"></a>
-<a href="LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License badge"></a>
+<a href="LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-orange.svg" alt="License badge"></a>
 <a href="https://github.com/bsamarji/Keepr"><img src="https://img.shields.io/github/stars/bsamarji/Keepr?style=social" alt="GitHub stars"></a>
 <h3>A lightweight, end-to-end encrypted password manager for developers - built for the terminal.</h3>
 </div>
@@ -49,8 +50,9 @@ That’s it — your credentials are stored locally, fully encrypted, and access
 * 🕒 Timed Sessions — Stay logged in for convenience, auto-lock after expiry.
 * 🧭 Vault Management — Add, update, list, search, or delete credentials.
 * 🧰 Password Generator — Cryptographically secure, configurable length.
-* 🧼 Clipboard Copy — Copy credentials without displaying them in plaintext.
+* 🧼 Clipboard Copy — Automatically copy passwords to the clipboard when viewing an entry.
 * 🎨 Custom Color Scheme — Clear, high-contrast terminal output.
+* ⚙️ User configuration — Configure the session length, the terminal output color scheme and password generator settings. 
 
 ---
 
@@ -215,6 +217,50 @@ After expiration, Keepr requires your Master Password again.
 
 ---
 
+## ⚙️ Configuration
+
+You'll find a `.keepr` hidden directory in your `home` directory. 
+In the `.keepr` directory you'll find a `config.ini` file. 
+Open the config.ini file in a text editor of your choice and change the values for the settings you want to change.
+
+### 🎨 Color Options
+
+There are 8 colors supported:
+
+* `black`
+* `red`
+* `green`
+* `yellow`
+* `blue`
+* `magenta`
+* `cyan`
+* `white`
+
+### Default configuration
+
+The default configuration file is below. 
+If you want to restore the default values, then you can replace your modified config.ini with the text below.
+
+```ini
+[SESSION_CONFIG]
+session_timeout_seconds = 3600
+
+[PASSWORD_CONFIG]
+password_generator_length = 20
+password_generator_special_chars = !@#$^&*
+
+[COLOR_SCHEME_CONFIG]
+color_error = red
+color_success = green
+color_prompt = cyan
+color_warning = yellow
+color_header = magenta
+color_sensitive_data = green
+color_non_sensitive_data = white
+```
+
+---
+
 ## 🛡️ Security Model
 
 Keepr follows a two-tier encryption model for maximum protection of your secrets.
@@ -224,13 +270,13 @@ Keepr follows a two-tier encryption model for maximum protection of your secrets
    * Algorithm: PBKDF2-HMAC (SHA256, 1,200,000 iterations)
    * Output: Key Encryption Key (KEK)
    * The KEK is never stored — it’s derived at runtime from your Master Password.
-   * 
+
 ---
 
 ### 2. 🧠 Primary Encryption Key (PEK)
    * The PEK is the actual key that encrypts your vault (keepr.db) using SQLCipher.
    * It’s stored encrypted on disk (.keepr/.security/keepr.key) — wrapped with your KEK via cryptography.Fernet.
-   * 
+
 ---
 
 ### 3. 🧭 Unlocking Flow
@@ -304,7 +350,6 @@ If you run into problems, the best way to get help is through the GitHub issue t
 
 Planned future features and improvements:
 
-- ⚙️ Customizable CLI configuration (color themes, session duration, default password generator length).
 - ⌨️ Shell autocompletion for Keepr commands and arguments.
 - 🧪 Password strength checks.
 - 🧵 Bulk import/export of entries.

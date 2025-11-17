@@ -4,8 +4,8 @@ from pathlib import Path
 from cryptography.fernet import Fernet, InvalidToken
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from keepr.config import DB_DIR_NAME, SECURITY_DIR_NAME, SALT_FILE_NAME, PEK_FILE_NAME
-from keepr.config import COLOR_WARNING, COLOR_ERROR, COLOR_PROMPT_BOLD, COLOR_PROMPT_LIGHT, COLOR_SUCCESS
+from keepr.internal_config import APP_DIR_NAME, SECURITY_DIR_NAME, SALT_FILE_NAME, PEK_FILE_NAME
+from keepr.internal_config import COLOR_WARNING, COLOR_ERROR, COLOR_PROMPT_BOLD, COLOR_PROMPT_LIGHT, COLOR_SUCCESS
 import click
 import sys
 
@@ -15,7 +15,7 @@ def initialise_security_dir():
     Initialise the security directory.
     """
     home_dir = Path.home()
-    security_dir = home_dir / DB_DIR_NAME / SECURITY_DIR_NAME
+    security_dir = home_dir / APP_DIR_NAME / SECURITY_DIR_NAME
     try:
         Path.mkdir(security_dir, parents=True, exist_ok=True)
     except OSError as e:
@@ -27,7 +27,7 @@ def generate_salt_file():
     Generate a random salt and write it to a file, if a salt file doesn't exist.
     """
     home_dir = Path.home()
-    security_dir = home_dir / DB_DIR_NAME / SECURITY_DIR_NAME
+    security_dir = home_dir / APP_DIR_NAME / SECURITY_DIR_NAME
     salt_file = security_dir / SALT_FILE_NAME
     if not salt_file.exists():
         salt = os.urandom(16)
@@ -47,7 +47,7 @@ def retrieve_salt():
          The salt (bytes) or None on failure.
     """
     home_dir = Path.home()
-    security_dir = home_dir / DB_DIR_NAME / SECURITY_DIR_NAME
+    security_dir = home_dir / APP_DIR_NAME / SECURITY_DIR_NAME
     salt_file = security_dir / SALT_FILE_NAME
     try:
         with open(salt_file, "rb") as f:
@@ -91,7 +91,7 @@ def login():
          The master password (str).
     """
     home_dir = Path.home()
-    security_dir = home_dir / DB_DIR_NAME / SECURITY_DIR_NAME
+    security_dir = home_dir / APP_DIR_NAME / SECURITY_DIR_NAME
     pek_file = security_dir / PEK_FILE_NAME
 
     if not pek_file.exists():
@@ -176,7 +176,7 @@ def encrypt_pek(derived_key, pek):
         The decrypted PEK (bytes) or None on failure.
     """
     home_dir = Path.home()
-    security_dir = home_dir / DB_DIR_NAME / SECURITY_DIR_NAME
+    security_dir = home_dir / APP_DIR_NAME / SECURITY_DIR_NAME
     pek_file = security_dir / PEK_FILE_NAME
 
     try:
@@ -214,7 +214,7 @@ def retrieve_and_decrypt_pek(derived_key):
         The decrypted primary encryption key (PEK) (bytes) or None on failure.
     """
     home_dir = Path.home()
-    security_dir = home_dir / DB_DIR_NAME / SECURITY_DIR_NAME
+    security_dir = home_dir / APP_DIR_NAME / SECURITY_DIR_NAME
     pek_file = security_dir / PEK_FILE_NAME
 
     # 1. Retrieve the Encrypted PEK
