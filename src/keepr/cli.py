@@ -3,11 +3,12 @@ import tabulate
 import sys
 from pathlib import Path
 import pyperclip
-from keepr import db, security, session
-from keepr.config import (COLOR_SENSITIVE_DATA, COLOR_PRIMARY_DATA, COLOR_WARNING, COLOR_ERROR,
-                          COLOR_HEADER, COLOR_PROMPT_BOLD, COLOR_PROMPT_LIGHT, COLOR_SUCCESS)
-from keepr.config import DB_DIR_NAME, SECURITY_DIR_NAME, PEK_FILE_NAME
-from keepr.config import COMMANDS_VALID_NO_ARGS
+from keepr import db, security, session, user_config
+from keepr.internal_config import (COLOR_SENSITIVE_DATA, COLOR_NON_SENSITIVE_DATA, COLOR_WARNING, COLOR_ERROR,
+                                   COLOR_HEADER, COLOR_PROMPT_BOLD, COLOR_PROMPT_LIGHT, COLOR_SUCCESS)
+from keepr.internal_config import APP_DIR_NAME, SECURITY_DIR_NAME, PEK_FILE_NAME, USER_CONFIG_FILE_NAME
+from keepr.internal_config import COMMANDS_VALID_NO_ARGS
+from keepr.internal_config import SESSION_TIMEOUT_SECONDS
 from keepr.password_generator import password_generator
 
 def authenticate_from_session(ctx):
@@ -85,7 +86,7 @@ def login():
     kek = security.generate_derived_key(kdf=kdf, master_password=master_password)
 
     home_dir = Path.home()
-    security_dir = home_dir / DB_DIR_NAME / SECURITY_DIR_NAME
+    security_dir = home_dir / APP_DIR_NAME / SECURITY_DIR_NAME
     pek_file = security_dir / PEK_FILE_NAME
 
     if not pek_file.exists():
@@ -104,7 +105,10 @@ def login():
         db.initialise_db(pek=session_pek)  # Ensure DB is initialized with the PEK
         click.secho(f"\nVault UNLOCKED. Commands will now run without further authentication.", **COLOR_SUCCESS)
         click.secho("Remember to run 'keepr logout' when finished.", **COLOR_WARNING)
-        click.secho("The session will terminate in 1 hour.", **COLOR_WARNING)
+        if SESSION_TIMEOUT_SECONDS < 60:
+            click.secho(f"The session will terminate in {SESSION_TIMEOUT_SECONDS} seconds.", **COLOR_WARNING)
+        else:
+            click.secho(f"The session will terminate in {int(SESSION_TIMEOUT_SECONDS / 60)} minutes.", **COLOR_WARNING)
 
 @cli.command(help="Instantly locks the vault and clears any active session.")
 def logout():
@@ -273,10 +277,10 @@ def view(ctx, service_name):
                 click.style(r[0], **COLOR_SENSITIVE_DATA), # service_name
                 click.style(r[1], **COLOR_SENSITIVE_DATA),  # username
                 click.style(r[2], **COLOR_SENSITIVE_DATA),  # password
-                click.style(r[3], **COLOR_WARNING),  # url
-                click.style(r[4], **COLOR_WARNING),  # note
-                click.style(r[5], **COLOR_PRIMARY_DATA),  # created_at
-                click.style(r[6], **COLOR_PRIMARY_DATA)  # updated_at
+                click.style(r[3], **COLOR_NON_SENSITIVE_DATA),  # url
+                click.style(r[4], **COLOR_NON_SENSITIVE_DATA),  # note
+                click.style(r[5], **COLOR_NON_SENSITIVE_DATA),  # created_at
+                click.style(r[6], **COLOR_NON_SENSITIVE_DATA)  # updated_at
             ])
 
         display_table = tabulate.tabulate(
@@ -345,10 +349,10 @@ def search(ctx, search_term):
         for r in rows:
             styled_rows.append([
                 click.style(r[0], **COLOR_SENSITIVE_DATA),  # service_name
-                click.style(r[1], **COLOR_WARNING),  # url
-                click.style(r[2], **COLOR_WARNING),  # note
-                click.style(r[3], **COLOR_PRIMARY_DATA),  # created_at
-                click.style(r[4], **COLOR_PRIMARY_DATA)  # updated_at
+                click.style(r[1], **COLOR_NON_SENSITIVE_DATA),  # url
+                click.style(r[2], **COLOR_NON_SENSITIVE_DATA),  # note
+                click.style(r[3], **COLOR_NON_SENSITIVE_DATA),  # created_at
+                click.style(r[4], **COLOR_NON_SENSITIVE_DATA)  # updated_at
             ])
 
         display_table = tabulate.tabulate(
@@ -402,10 +406,10 @@ def list_entries(ctx):
         for r in rows:
             styled_rows.append([
                 click.style(r[0], **COLOR_SENSITIVE_DATA),  # service_name
-                click.style(r[1], **COLOR_WARNING),  # url
-                click.style(r[2], **COLOR_WARNING),  # note
-                click.style(r[3], **COLOR_PRIMARY_DATA),  # created_at
-                click.style(r[4], **COLOR_PRIMARY_DATA)  # updated_at
+                click.style(r[1], **COLOR_NON_SENSITIVE_DATA),  # url
+                click.style(r[2], **COLOR_NON_SENSITIVE_DATA),  # note
+                click.style(r[3], **COLOR_NON_SENSITIVE_DATA),  # created_at
+                click.style(r[4], **COLOR_NON_SENSITIVE_DATA)  # updated_at
             ])
 
         display_table = tabulate.tabulate(

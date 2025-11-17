@@ -2,8 +2,8 @@ import time
 import os
 from pathlib import Path
 import click
-from keepr.config import SESSION_FILE_NAME, SESSION_TIMEOUT_SECONDS, SECURITY_DIR_NAME, DB_DIR_NAME
-from keepr.config import COLOR_ERROR
+from keepr.internal_config import SESSION_FILE_NAME, SESSION_TIMEOUT_SECONDS, SECURITY_DIR_NAME, APP_DIR_NAME
+from keepr.internal_config import COLOR_ERROR
 
 def get_session_file_path():
     """
@@ -12,7 +12,7 @@ def get_session_file_path():
         session_file: session file path
     """
     home_dir = Path.home()
-    session_file = home_dir / DB_DIR_NAME / SECURITY_DIR_NAME / SESSION_FILE_NAME
+    session_file = home_dir / APP_DIR_NAME / SECURITY_DIR_NAME / SESSION_FILE_NAME
     return session_file
 
 def store_session_data(pek):

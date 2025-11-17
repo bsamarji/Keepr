@@ -2,7 +2,8 @@ import sqlcipher3.dbapi2 as sqlite3
 from pathlib import Path
 import click
 import sys
-from keepr.config import *
+from keepr.internal_config import *
+from keepr.sql_queries import *
 
 
 def get_db_path():
@@ -10,7 +11,7 @@ def get_db_path():
     Returns the cross-platform path to the SQLite database file.
     """
     home_dir = Path.home()
-    db_dir = home_dir / DB_DIR_NAME
+    db_dir = home_dir / APP_DIR_NAME
     try:
         Path.mkdir(db_dir, parents=True, exist_ok=True)
         return db_dir / DB_FILE_NAME
