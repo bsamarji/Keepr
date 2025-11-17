@@ -2,8 +2,9 @@
 <h1>Keepr 🗝️</h1>
 <br/>
 <a href="https://pypi.org/project/Keepr"><img src="https://img.shields.io/pypi/v/keepr.svg" alt="PyPI Version"></a>
+<a href="https://pepy.tech/projects/keepr"><img src="https://static.pepy.tech/personalized-badge/keepr?period=total&units=ABBREVIATION&left_color=GREY&right_color=MAGENTA&left_text=downloads" alt="PyPI Downloads"></a>
 <a href="https://www.python.org/"><img src="https://img.shields.io/badge/built_with-python3-green.svg" alt="Built with Python3"></a>
-<a href="LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License badge"></a>
+<a href="LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-orange.svg" alt="License badge"></a>
 <a href="https://github.com/bsamarji/Keepr"><img src="https://img.shields.io/github/stars/bsamarji/Keepr?style=social" alt="GitHub stars"></a>
 <h3>A lightweight, end-to-end encrypted password manager for developers - built for the terminal.</h3>
 </div>
