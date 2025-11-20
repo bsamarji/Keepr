@@ -1,0 +1,70 @@
+site_name: Keepr Docs
+site_url: http://127.0.0.1:8000/
+
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - User Guides:
+    - Getting Started: user_guides/getting_started.md
+    - Configuration: user_guides/configuration.md
+  - Command Reference:
+    - command_reference/index.md
+    - command_reference/login.md
+    - command_reference/logout.md
+    - command_reference/add.md
+    - command_reference/view.md
+    - command_reference/update.md
+    - command_reference/delete.md
+    - command_reference/list.md
+    - command_reference/search.md
+    - command_reference/change_master.md
+    - command_reference/help.md
+  - Encryption Architecture: encryption.md
+  - FAQs: FAQs.md
+  - About:
+    - Contributing: about/contributing.md
+    - Support: about/support.md
+    - License: about/LICENSE.md
+
+theme:
+
+  name: material
+  logo: assets/favicon.svg
+  favicon: assets/favicon.svg
+
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+  features:
+    - navigation.instant
+    - navigation.instant.prefetch
+    - navigation.instant.progress
+    - navigation.tracking
+    - navigation.path
+    - navigation.top
+    - navigation.footer
+
+extra:
+  social:
+    - icon: simple/pypi
+      link: https://pypi.org/project/Keepr/
+    - icon: fontawesome/brands/github
+      link: https://github.com/bsamarji/Keepr
+
+repo_url: https://github.com/bsamarji/Keepr
+repo_name: Keepr
+
+copyright: Copyright &copy; 2025 Ben Samarji
+

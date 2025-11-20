@@ -24,6 +24,8 @@ dependencies = [
     "sqlcipher3-wheels==0.5.5.post0",
     "cryptography>=46.0.3",
     "pyinstaller>=6.16.0",
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.7.0",
 ]
 
 [project.urls]

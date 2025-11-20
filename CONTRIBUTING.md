@@ -25,4 +25,4 @@ If you run into problems, the best way to get help is through the GitHub issue t
   Use the `enhancement` label and describe what you’d like to see added or improved.
 
 - ❓ **General Questions:**  
-  Feel free to ask any question in the disucssions page.
+  Feel free to ask any question in the discussions page.
