@@ -1,5 +1,11 @@
 name: Publish Python 🐍 distribution 📦 to PyPI
-on: push
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release Tag (e.g., v1.0.0)"
+        required: true
 
 jobs:
   build:
@@ -31,7 +37,6 @@ jobs:
   publish-to-pypi:
     name: >-
       Publish Python 🐍 distribution 📦 to PyPI
-    if: startsWith(github.ref, 'refs/tags/')  # only publish to PyPI on tag pushes
     needs:
     - build
     runs-on: ubuntu-latest
