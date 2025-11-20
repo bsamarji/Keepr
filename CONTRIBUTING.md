@@ -14,7 +14,7 @@ If you're planning a substantial change, please open an issue first so we can di
 
 ---
 
-## 🛠 Support
+## 👨‍🔧 Support
 
 If you run into problems, the best way to get help is through the GitHub issue tracker.
 
