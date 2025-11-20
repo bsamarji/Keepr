@@ -57,6 +57,8 @@ theme:
     - navigation.footer
     - navigation.tabs
     - content.action.edit
+    - search.suggest
+    - search.share
 
   icon:
     edit: material/pencil
@@ -94,5 +96,6 @@ plugins:
   - git-committers:
       repository: bsamarji/Keepr
       branch: main
+  - search
 
 
