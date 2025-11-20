@@ -1,5 +1,5 @@
 <div align="center">
-<img src="https://github.com/bsamarji/Keepr/blob/main/docs/assets/keepr_logo.png" alt="Keepr Logo">
+<img src="https://github.com/bsamarji/Keepr/blob/main/docs/assets/keepr_logo.png" width=600 alt="Keepr Logo">
 <h1>Keepr: A lightweight, end-to-end encrypted password manager for developers - built for the terminal.</h1>
 <br/>
 <a href="https://pypi.org/project/Keepr"><img src="https://img.shields.io/pypi/v/keepr.svg" alt="PyPI Version"></a>
