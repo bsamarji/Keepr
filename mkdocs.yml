@@ -1,5 +1,6 @@
 site_name: Keepr Docs
-site_url: http://127.0.0.1:8000/
+site_url: https://bsamarji.github.io/Keepr/
+edit_uri: edit/main/docs/
 
 nav:
   - Home: index.md
@@ -27,7 +28,6 @@ nav:
     - License: about/LICENSE.md
 
 theme:
-
   name: material
   logo: assets/favicon.svg
   favicon: assets/favicon.svg
@@ -55,6 +55,25 @@ theme:
     - navigation.path
     - navigation.top
     - navigation.footer
+    - navigation.tabs
+    - content.action.edit
+
+  icon:
+    edit: material/pencil
+    view: material/eye
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.emoji
+  - pymdownx.magiclink
+  - pymdownx.tabbed
+  - tables
 
 extra:
   social:
@@ -67,4 +86,13 @@ repo_url: https://github.com/bsamarji/Keepr
 repo_name: Keepr
 
 copyright: Copyright &copy; 2025 Ben Samarji
+
+plugins:
+  - git-revision-date-localized:
+      enable_creation_date: true
+      type: timeago
+  - git-committers:
+      repository: bsamarji/Keepr
+      branch: main
+
 
