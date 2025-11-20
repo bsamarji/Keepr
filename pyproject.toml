@@ -14,8 +14,7 @@ requires-python = ">=3.13"
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
-    "Intended Audience :: Developers",
-    "Topic :: Software Development :: Developer Tools",
+    "Intended Audience :: Developers"
 ]
 license = "MIT"
 license-files = ["LICEN[CS]E*"]
