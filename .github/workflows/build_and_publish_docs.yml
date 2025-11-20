@@ -5,6 +5,9 @@ on:
     branches:
       - main
       - master
+    paths:
+      - 'docs/**'    # Trigger if files in docs/ change
+      - 'mkdocs.yml' # Also trigger if mkdocs config changes
 
 permissions:
   contents: read
